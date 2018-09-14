@@ -1,1 +1,2 @@
-string
+while(true){
+return true;}
