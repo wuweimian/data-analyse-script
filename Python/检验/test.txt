@@ -1,0 +1,3 @@
+def run(params,out):
+  print params
+  out = "³ö²Î"+params
