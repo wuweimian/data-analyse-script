@@ -1,4 +1,11 @@
-def run(params,out):
-  print params
-  out = "出参"+params
+import sys
+def run(col,params):
+	print("params is "+params)
+	print("col is "+col)
 
+if __name__ == '__main__':
+	#特征别名按顺序,|分隔
+	col = "{featureList}"
+	#特征之外的参数json格式
+	params = "{params}"
+	run(col,params)
