@@ -8,6 +8,6 @@ package com.xxl.job.service.handler;
 
 @Override
 public ReturnT<String> execute(String param) throws Exception {
-XxlJobLogger.log("XXL-JOB, Hello World.111331");
+XxlJobLogger.log("XXL-JOB, Hello World.1131331");
 return ReturnT.SUCCESS;
 }
