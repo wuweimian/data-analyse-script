@@ -2,10 +2,10 @@ import genvs as GENV
 G_ENV = GENV.GENVS()
 import sys
 def test(param1,param2,out,date):
-	print("param1 is "+param1)
-        print("param2 is "+param2)
-	print("outis "+out)
-        print("date"+date)
+    print("param1 is "+param1)
+    print("param2 is "+param2)
+    print("outis "+out)
+    print("date"+date)
 
 if (__name__ == '__main__') & ('XXJOB' not in globals()):
 	test("1","2","out","2018-11-16")
