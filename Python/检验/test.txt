@@ -1,3 +1,5 @@
+import genvs as GENV
+G_ENV = GENV.GENVS()
 import sys
 def test(param1,param2,out,date):
 	print("param1 is "+param1)
