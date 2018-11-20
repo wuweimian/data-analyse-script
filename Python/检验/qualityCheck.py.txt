@@ -18,8 +18,8 @@ def nan_count(data):
 
 
 def qualityCheck(col):
-    df_dir = G_ENV.baseDir+"/"+G_ENV.projectId+"/work_file/features.txt"    
-    df = pd.read_csv(df_dir, sep='|')
+    df_dir = G_ENV.baseDir+"/"+G_ENV.projectId+"/work_file/features.csv"    
+    df = pd.read_csv(df_dir, sep=',')
 
     col_list = col.split('|')
     df = df[col_list]
