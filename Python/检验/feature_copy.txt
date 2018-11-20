@@ -28,7 +28,7 @@ def copy(feature_key,source_key,source_col,sep='|'):
         cols.append(source_key)
         res = feature_df[cols]
     
-    file_operate.write(res,feature_dir,feature_filename,sep)
+    file_operate.write(res,feature_dir,feature_filename,',')
 
 if (__name__ == '__main__') & ('XXJOB' not in globals()):
     G_ENV.baseDir="C:/Users/user/Desktop/automodel/script/V2/data"
