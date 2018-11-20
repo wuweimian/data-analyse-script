@@ -65,7 +65,7 @@ def qualityCheck(col):
     report.createhtml("运行结果", des_dir)
 
 
-if __name__ == '__main__':
+if (__name__ == '__main__') & & ('XXJOB' not in globals()):
     G_ENV.baseDir="C:/Users/user/Desktop/automodel/script/V2/data"
     G_ENV.projectId = "projectId"
     G_ENV.jobId="jobId"
