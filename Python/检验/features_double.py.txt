@@ -7,7 +7,7 @@ import file_operate
 def features_double(col,newcol):
     feature_dir = G_ENV.baseDir+"/"+G_ENV.projectId+"/work_file/"
     feature_filename = "features.csv"
-    feature_df = file_operate.read(source_dir, source_filename,sep)
+    feature_df = file_operate.read(feature_dir , feature_filename ,',')
     feature_df[newcol]= feature_df[col]*2     
     file_operate.write(feature_df,feature_dir,feature_filename,',')
 
