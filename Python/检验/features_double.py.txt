@@ -1,0 +1,22 @@
+import genvs as GENV
+G_ENV = GENV.GENVS()
+
+import pandas as pd
+import file_operate
+
+def features_double(col,newcol):
+    feature_dir = G_ENV.baseDir+"/"+G_ENV.projectId+"/work_file/"
+    feature_filename = "features.csv"
+    feature_df = file_operate.read(source_dir, source_filename,sep)
+    feature_df[newcol]= feature_df[col]*2     
+    file_operate.write(feature_df,feature_dir,feature_filename,',')
+
+if (__name__ == '__main__') & ('XXJOB' not in globals()):
+    G_ENV.baseDir="C:/Users/user/Desktop/automodel/script/V2/data"
+    G_ENV.projectId = "projectId"
+    G_ENV.jobId="jobId"
+    G_ENV.instanceId="instanceId"
+
+    #source_filename
+    G_ENV.tmpdir = "a.txt" 
+    features_double("num","newnum")
