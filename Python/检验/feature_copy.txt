@@ -2,7 +2,33 @@ import genvs as GENV
 G_ENV = GENV.GENVS()
 
 import pandas as pd
+import report
 import file_operate
+
+
+def show_data_head(n=10):
+    df = get_features_data_all().head(n)
+    des_dir = get_result_dir()
+    report.savedataframe(des_dir, "特征数据预览", df)
+
+def get_features_data(col):
+    df_dir = G_ENV.baseDir+"/"+G_ENV.projectId+"/work_file/features.csv"    
+    df = pd.read_csv(df_dir, sep=',')
+    col_list = col.split('|')
+    df = df[col_list]
+    return df
+def get_features_data_all():
+    df_dir = G_ENV.baseDir+"/"+G_ENV.projectId+"/work_file/features.csv"    
+    df = pd.read_csv(df_dir, sep=',')
+    return df
+    
+def update_features(df):
+    df_dir = G_ENV.baseDir+"/"+G_ENV.projectId+"/work_file/features.csv"
+    df.to_csv(df_dir,index=False)
+    
+def get_result_dir():
+    des_dir= G_ENV.baseDir+"/"+G_ENV.projectId+"/"+G_ENV.jobId+"/"+G_ENV.instanceId+"/result/"
+    return des_dir
 
 def copydf(feature_df,source_df,feature_key,source_key,source_col,new_col):
     col = source_col.split('|')
@@ -35,6 +61,10 @@ def copy(feature_key,source_key,source_col,new_col,sep='|'):
         res.columns=coln
     
     file_operate.write(res,feature_dir,feature_filename,',')
+
+    show_data_head(n=10)
+    #生成报告
+    report.createhtml("运行结果", get_result_dir())
 
 if (__name__ == '__main__') & ('XXJOB' not in globals()):
     G_ENV.baseDir="C:/Users/user/Desktop/automodel/script/V2/data"
