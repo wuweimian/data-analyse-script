@@ -23,7 +23,8 @@ def get_result_dir():
     return des_dir
 # 以上为模板
 ################################################################################################
-def correlation(col):
+def correlation(colx,coly):
+    col = colx+"|"+coly
     df = get_features_data(col)
     col_list = col.split('|')
     corr = df.corr().iloc[:, -1:]
@@ -52,4 +53,4 @@ if (__name__ == '__main__') & ('XXJOB' not in globals()):
     G_ENV.projectId = "projectId"
     G_ENV.jobId="jobId"
     G_ENV.instanceId="instanceId"
-    correlation("a_age|a_arpu")
+    correlation("a_age|a_arpu","b_arpu")
