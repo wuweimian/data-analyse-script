@@ -41,6 +41,8 @@ def correlation(col):
     #print(corr)
     # 保存结果
     report.savedataframe(get_result_dir(), "相关性计算", corr)
+    #生成报告
+    report.createhtml("运行结果", get_result_dir())
 
 
 ########################################################################################
