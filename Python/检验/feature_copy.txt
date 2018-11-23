@@ -6,9 +6,8 @@ import report
 import file_operate
 
 
-def show_data_head(n=10):
+def show_data_head(des_dir, n=10):
     df = get_features_data_all().head(n)
-    des_dir = get_result_dir()
     report.savedataframe(des_dir, "特征数据预览", df)
 
 def get_features_data(col):
@@ -26,8 +25,8 @@ def update_features(df):
     df_dir = G_ENV.baseDir+"/"+G_ENV.projectId+"/work_file/features.csv"
     df.to_csv(df_dir,index=False)
     
-def get_result_dir():
-    des_dir= G_ENV.baseDir+"/"+G_ENV.projectId+"/"+G_ENV.jobId+"/"+G_ENV.instanceId+"/result/"
+def get_result_dir(newdir):
+    des_dir= G_ENV.baseDir+"/"+G_ENV.projectId+"/"+G_ENV.jobId+"/"+G_ENV.instanceId+"/"+newdir+"/"
     return des_dir
 
 def copydf(feature_df,source_df,feature_key,source_key,source_col,new_col):
@@ -62,9 +61,9 @@ def copy(feature_key,source_key,source_col,new_col,sep='|'):
     
     file_operate.write(res,feature_dir,feature_filename,',')
 
-    show_data_head(n=10)
+    show_data_head(get_result_dir("运行结果"),n=10)
     #生成报告
-    report.createhtml("运行结果", get_result_dir())
+    report.createhtml("运行结果", get_result_dir("运行结果"))
 
 if (__name__ == '__main__') & ('XXJOB' not in globals()):
     G_ENV.baseDir="C:/Users/user/Desktop/automodel/script/V2/data"
