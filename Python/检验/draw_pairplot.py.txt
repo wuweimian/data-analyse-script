@@ -36,10 +36,11 @@ def get_result_dir():
     return des_dir
 # 以上为模板
 ################################################################################################
-def draw_pairplot(col, hue):
+def draw_pairplot(col, hue_):
     df = get_features_data(col)
+    df = df.dropna()
     plt.figure(0)
-    sb.pairplot(df, hue=hue)
+    sb.pairplot(df, hue=hue_)
     report.saveimg(get_result_dir(), "特征两两对比", plt)
     plt.close(0)
     report.createhtml("运行结果", get_result_dir())
