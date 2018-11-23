@@ -1,0 +1,53 @@
+# -*- coding: utf-8 -*-
+
+import genvs as GENV
+G_ENV = GENV.GENVS()
+
+import pandas as pd
+from pandas import Series
+import report
+
+def get_features_data(col):
+    df_dir = G_ENV.baseDir+"/"+G_ENV.projectId+"/work_file/features.csv"    
+    df = pd.read_csv(df_dir, sep=',')
+    col_list = col.split('|')
+    df = df[col_list]
+    return df
+
+def update_features(df):
+	df_dir = G_ENV.baseDir+"/"+G_ENV.projectId+"/work_file/features.csv"
+	df.to_csv(df_dir,index=False)
+	
+def get_result_dir():
+    des_dir= G_ENV.baseDir+"/"+G_ENV.projectId+"/"+G_ENV.jobId+"/"+G_ENV.instanceId+"/result/"
+    return des_dir
+# 以上为模板
+################################################################################################
+def correlation(col):
+    df = get_features_data(col)
+    col_list = col.split('|')
+    corr = df.corr().iloc[:, -1:]
+    corr = corr[(abs(corr) > 0.01) & (abs(corr) < 0.9)]
+    corr = corr.dropna()
+
+    # 计算相关系数的绝对值，拼接到结果中
+    y_col=col_list[-1]
+    tmp_col = corr[y_col].abs()
+    corr['abs'] = tmp_col
+
+    # 设置精度
+    corr = corr.round(4)
+    corr = corr.sort_values(by='abs', ascending=False)
+    #print(corr)
+    # 保存结果
+    report.savedataframe(get_result_dir(), "相关性计算", corr)
+
+
+########################################################################################
+# 以下是模板
+if (__name__ == '__main__') & ('XXJOB' not in globals()):
+    G_ENV.baseDir="C:/Users/user/Desktop/automodel/script/V2/data"
+    G_ENV.projectId = "projectId"
+    G_ENV.jobId="jobId"
+    G_ENV.instanceId="instanceId"
+    correlation("a_age|a_arpu")
