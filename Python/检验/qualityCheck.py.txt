@@ -7,7 +7,12 @@ G_ENV = GENV.GENVS()
 import pandas as pd
 from pandas import Series
 import report
-import sys
+
+
+
+def show_data_head(des_dir, n=10):
+    df = get_features_data_all().head(n)
+    report.savedataframe(des_dir, "特征数据预览", df)
 
 
 def nan_count(data):
@@ -18,12 +23,12 @@ def nan_count(data):
 
 
 def qualityCheck(col):
+	##########################################################################
     df_dir = G_ENV.baseDir+"/"+G_ENV.projectId+"/work_file/features.csv"    
     df = pd.read_csv(df_dir, sep=',')
-
     col_list = col.split('|')
     df = df[col_list]
-
+    ##########################################################################
     # Todo 检查df中是否有不符合质量检查的列，如字符串
 
     # 数据质量检查
@@ -60,17 +65,17 @@ def qualityCheck(col):
         result_str += "{}|{:.2f}|{:.2f}\n".format(max_, std, abnormal)
 
     # 保存结果
-    des_dir= G_ENV.baseDir+"/"+G_ENV.projectId+"/"+G_ENV.jobId+"/"+G_ENV.instanceId+"/result/"
+    des_dir= G_ENV.get_result_dir("运行结果")
     report.savestrtb(des_dir, "数据质量检查", result_str)
 
     report.createhtml("运行结果", des_dir)
 
 
-if (__name__ == '__main__') &  ('XXJOB' not in globals()):
+if __name__ == '__main__':
     G_ENV.baseDir="C:/Users/user/Desktop/automodel/script/V2/data"
     G_ENV.projectId = "projectId"
     G_ENV.jobId="jobId"
     G_ENV.instanceId="instanceId"
 
 
-    qualityCheck("ID|sepal_length|sepal_width|petal_length|petal_width")
+    qualityCheck("b_age|b_arpu")
