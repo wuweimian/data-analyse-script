@@ -11,39 +11,19 @@ import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties
 import report
 
-def show_data_head(n=10):
+def show_data_head(des_dir, n=10):
     df = get_features_data_all().head(n)
-    des_dir = get_result_dir()
     report.savedataframe(des_dir, "特征数据预览", df)
 
-def get_features_data(col):
-    df_dir = G_ENV.baseDir+"/"+G_ENV.projectId+"/work_file/features.csv"    
-    df = pd.read_csv(df_dir, sep=',')
-    col_list = col.split('|')
-    df = df[col_list]
-    return df
-def get_features_data_all():
-    df_dir = G_ENV.baseDir+"/"+G_ENV.projectId+"/work_file/features.csv"    
-    df = pd.read_csv(df_dir, sep=',')
-    return df
-    
-def update_features(df):
-    df_dir = G_ENV.baseDir+"/"+G_ENV.projectId+"/work_file/features.csv"
-    df.to_csv(df_dir,index=False)
-    
-def get_result_dir():
-    des_dir= G_ENV.baseDir+"/"+G_ENV.projectId+"/"+G_ENV.jobId+"/"+G_ENV.instanceId+"/result/"
-    return des_dir
 # 以上为模板
 ################################################################################################
-def draw_pairplot(col, hue_):
-    df = get_features_data(col)
-    df = df.dropna()
+def draw_pairplot(col, hue):
+    df = G_ENV.get_features_data(col)
     plt.figure(0)
-    sb.pairplot(df, hue=hue_)
-    report.saveimg(get_result_dir(), "特征两两对比", plt)
+    sb.pairplot(df, hue=hue)
+    report.saveimg(G_ENV.get_result_dir("运行结果"), "特征两两对比", plt)
     plt.close(0)
-    report.createhtml("运行结果", get_result_dir())
+    report.createhtml("运行结果", G_ENV.get_result_dir("运行结果"))
 
 ########################################################################################
 # 以下是模板
