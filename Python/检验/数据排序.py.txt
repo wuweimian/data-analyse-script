@@ -1,0 +1,29 @@
+# -*- coding: utf-8 -*-
+import pandas as pd
+import report
+import genvs as GENV
+G_ENV = GENV.GENVS()
+
+
+
+"""
+数据排序调用函数
+col：['A','B'...]
+"""
+def sort_values_main(x_col,s_col):
+    data = G_ENV.get_features_data(x_col)
+    data = data.sort_values(by=s_col)
+
+    # 保存前五行数据预览
+    report.savedataframe(G_ENV.get_result_dir(), "数据排序结果", data.head())
+    # 生成报告
+    report.createhtml("数据排序结果", G_ENV.get_result_dir())
+            
+if __name__ == '__main__':
+    G_ENV.baseDir="C:/Users/Tim/Desktop/automodel/V2/data"
+    G_ENV.projectId = "projectId"
+    G_ENV.jobId="jobId"
+    G_ENV.instanceId="instanceId"
+    x_col = "a_age_x|a_arpu_x|a_age_1|a_age_y"
+    s_col=['a_age_x','a_arpu_x']
+    sort_values_main(x_col,s_col)
