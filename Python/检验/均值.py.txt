@@ -1,0 +1,35 @@
+# -*- coding: utf-8 -*-
+import pandas as pd
+import report
+import genvs as GENV
+G_ENV = GENV.GENVS()
+
+
+"""
+均值插值
+"""
+def mean_interp(x,n=0):
+    mean = x.mean()
+    x = x.fillna(mean)
+    return x
+
+"""
+均值插值调用函数
+"""
+def mean_insert_main(col):
+    data = G_ENV.get_features_data(col)
+    for i in data.columns:
+        data[i] = mean_interp(data[i])
+
+    # 保存前五行数据预览
+    report.savedataframe(G_ENV.get_result_dir(), "均值插值结果", data.head())
+    # 生成报告
+    report.createhtml("均值插值结果", G_ENV.get_result_dir())
+            
+if __name__ == '__main__':
+    G_ENV.baseDir="C:/Users/Tim/Desktop/automodel/V2/data"
+    G_ENV.projectId = "projectId"
+    G_ENV.jobId="jobId"
+    G_ENV.instanceId="instanceId"
+    x_col = "a_age_x|a_arpu_x|a_age_1|a_age_y"
+    mean_insert_main(x_col)
