@@ -1,0 +1,29 @@
+# -*- coding: utf-8 -*-
+import pandas as pd
+import report
+from sklearn import preprocessing
+import genvs as GENV
+G_ENV = GENV.GENVS()
+
+
+
+"""
+z_score调用函数
+col：['A','B'...]
+"""
+def z_score_main(x_col):
+    data = G_ENV.get_features_data(x_col)
+    np_scaled = preprocessing.scale(data.values)
+    pd_scaler = pd.DataFrame(np_scaled)
+    # 保存前五行数据预览
+    report.savedataframe(G_ENV.get_result_dir(), "z_score转换结果", pd_scaler)
+    # 生成报告
+    report.createhtml("z_score转换结果", G_ENV.get_result_dir())
+            
+if __name__ == '__main__':
+    G_ENV.baseDir="C:/Users/Tim/Desktop/automodel/V2/data"
+    G_ENV.projectId = "projectId"
+    G_ENV.jobId="jobId"
+    G_ENV.instanceId="instanceId"
+    x_col = "a_age_x|a_arpu_x|a_age_1|a_age_y"
+    z_score_main(x_col)
