@@ -1,0 +1,26 @@
+# -*- coding: utf-8 -*-
+import pandas as pd
+import report
+import genvs as GENV
+G_ENV = GENV.GENVS()
+
+
+"""
+pearson相关性调用函数
+"""
+def pearson_main(x_col):
+    data = G_ENV.get_features_data(x_col)
+    data_corr = data.corr()
+    # 保存前五行数据预览
+    report.savedataframe(G_ENV.get_result_dir(), "pearson相关性结果", data_corr)
+    # 生成报告
+    report.createhtml("pearson相关性结果", G_ENV.get_result_dir())
+            
+if __name__ == '__main__':
+    G_ENV.baseDir="C:/Users/Tim/Desktop/automodel/V2/data"
+    G_ENV.projectId = "projectId"
+    G_ENV.jobId="jobId"
+    G_ENV.instanceId="instanceId"
+    x_col = "a_age_x|a_arpu_x|a_age_1|a_age_y"
+    pearson_main(x_col)
+
