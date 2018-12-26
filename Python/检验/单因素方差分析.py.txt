@@ -1,0 +1,33 @@
+# -*- coding: utf-8 -*-
+import pandas as pd
+import report
+from statsmodels.formula.api import ols
+from statsmodels.stats.anova import anova_lm
+import genvs as GENV
+G_ENV = GENV.GENVS()
+
+
+"""
+单因素方差分析调用函数
+a,b为两个特征列
+"""
+def anova_lm_main(x_col,a,b):
+    data = G_ENV.get_features_data(x_col)
+    formula = a+'~'+b
+    model = ols(formula, data).fit()
+    anovat = anova_lm(model)
+    print(type(anovat))
+    # 保存数据预览
+    report.savedataframe(G_ENV.get_result_dir(), "单因素方差分析结果", anovat)
+    # 生成报告
+    report.createhtml("单因素方差分析结果", G_ENV.get_result_dir())
+            
+if __name__ == '__main__':
+    G_ENV.baseDir="C:/Users/Tim/Desktop/automodel/V2/data"
+    G_ENV.projectId = "projectId"
+    G_ENV.jobId="jobId"
+    G_ENV.instanceId="instanceId"
+    x_col = "a_age_x|a_arpu_x|a_age_1|a_age_y"
+    a = "a_age_x"
+    b = "a_arpu_x"
+    anova_lm_main(x_col,a,b)
