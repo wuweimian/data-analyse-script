@@ -1,0 +1,29 @@
+# -*- coding: utf-8 -*-
+import pandas as pd
+import report
+from scipy import stats
+import genvs as GENV
+G_ENV = GENV.GENVS()
+
+
+
+"""
+两独立样本t检验调用函数
+"""
+def ttest_ind_main(a,b):
+    data = stats.ttest_ind(a, b)
+    # 保存前五行数据预览
+    report.savestrtb(G_ENV.get_result_dir(), "两独立样本t检验结果", data.__str__())
+    # 生成报告
+    report.createhtml("两独立样本t检验结果", G_ENV.get_result_dir())
+            
+if __name__ == '__main__':
+    G_ENV.baseDir="C:/Users/Tim/Desktop/automodel/V2/data"
+    G_ENV.projectId = "projectId"
+    G_ENV.jobId="jobId"
+    G_ENV.instanceId="instanceId"
+    x_col = "a_age_x|a_arpu_x|a_age_1|a_age_y"
+    n_components=2
+    a = [3, 5, 4, 6]
+    b = [7, 8, 6, 7]
+    ttest_ind_main(a,b)
