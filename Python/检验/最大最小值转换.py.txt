@@ -1,0 +1,29 @@
+# -*- coding: utf-8 -*-
+import pandas as pd
+import report
+from sklearn.preprocessing import MinMaxScaler
+import genvs as GENV
+G_ENV = GENV.GENVS()
+
+
+"""
+最大最小值数据标准化调用函数
+col：['A','B'...]
+"""
+def max_min_main(x_col):
+    data = G_ENV.get_features_data(x_col)
+    scaler = MinMaxScaler()
+    np_scaler = scaler.fit_transform(data)
+    pd_scaler = pd.DataFrame(np_scaler)
+    # 保存前五行数据预览
+    report.savedataframe(G_ENV.get_result_dir(), "最大最小值转换结果", pd_scaler)
+    # 生成报告
+    report.createhtml("最大最小值转换结果", G_ENV.get_result_dir())
+            
+if __name__ == '__main__':
+    G_ENV.baseDir="C:/Users/Tim/Desktop/automodel/V2/data"
+    G_ENV.projectId = "projectId"
+    G_ENV.jobId="jobId"
+    G_ENV.instanceId="instanceId"
+    x_col = "a_age_x|a_arpu_x|a_age_1|a_age_y"
+    max_min_main(x_col)
