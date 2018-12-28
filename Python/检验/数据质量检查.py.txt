@@ -31,7 +31,6 @@ def dataQualityCheck(col=None):
     df_dir = G_ENV.baseDir+"/"+G_ENV.projectId+"/work_file/features.csv"    
     df = pd.read_csv(df_dir, sep=',')
     if not col is None:
-        col = "b_age|b_arpu"
         col_list = col.split('|')
         df = df[col_list]
 
