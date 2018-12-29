@@ -23,18 +23,14 @@ def nan_count(data):
 
 
 """
-col为空则默认读取文件所有列
-col不为空，以|分隔，以传入的col值为准
+col：传入特征列值，以|分隔
 """
-def dataQualityCheck(col=None):
+def dataQualityCheck(col):
 	##########################################################################
     df_dir = G_ENV.baseDir+"/"+G_ENV.projectId+"/work_file/iris.txt"
     df = pd.read_csv(df_dir, sep='|')
-    print(df.iloc[:,0])
-    print(df.iloc[:, len(df.columns) - 1])
-    if not col is None:
-        col_list = col.split('|')
-        df = df[col_list]
+    col_list = col.split('|')
+    df = df[col_list]
 
     ##########################################################################
     # Todo 检查df中是否有不符合质量检查的列，如字符串
@@ -86,4 +82,3 @@ if (__name__ == '__main__') & ('XXJOB' not in globals()):
     G_ENV.instanceId="instanceId"
 
     dataQualityCheck("sepal_length|sepal_width|petal_length|petal_width|species")
-    #dataQualityCheck()
