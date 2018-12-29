@@ -28,7 +28,7 @@ col不为空，以|分隔，以传入的col值为准
 """
 def dataQualityCheck(col=None):
 	##########################################################################
-    df_dir = G_ENV.baseDir+"/"+G_ENV.projectId+"/work_file/iris.txt"
+    df_dir = G_ENV.baseDir+"/"+"201812295610"+"/work_file/iris.txt"
     df = pd.read_csv(df_dir, sep='|')
     print(df.iloc[:,0])
     print(df.iloc[:, len(df.columns) - 1])
