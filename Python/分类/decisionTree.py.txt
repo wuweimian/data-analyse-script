@@ -1,0 +1,6 @@
+# -*- coding: utf-8 -*-
+
+import genvs as GENV
+G_ENV = GENV.GENVS()
+
+
