@@ -1,0 +1,32 @@
+# -*- coding: utf-8 -*-
+import pandas as pd
+import report
+from sklearn.feature_selection import SelectKBest
+from sklearn.feature_selection import chi2
+import genvs as GENV
+G_ENV = GENV.GENVS()
+
+"""
+卡方检验调用函数
+x
+"""
+def kafang_check_main(x,y,k=2):
+    model1 = SelectKBest(chi2, k=k)
+    data_np = model1.fit_transform(x, y)
+    data_pd = pd.DataFrame(data_np)
+    # 保存前五行数据预览
+    report.savedataframe(G_ENV.get_result_dir(), "卡方检验结果", data_pd.head())
+    # 生成报告
+    report.createhtml("卡方检验结果", G_ENV.get_result_dir())
+            
+if __name__ == '__main__':
+    G_ENV.baseDir="C:/Users/Tim/Desktop/automodel/V2/data"
+    G_ENV.projectId = "projectId"
+    G_ENV.jobId="jobId"
+    G_ENV.instanceId="instanceId"
+    x_col = "a_age_x|a_arpu_x|a_age_1|a_age_y"
+    from sklearn.datasets import load_iris
+    iris = load_iris()
+    x=iris.data
+    y=iris.target
+    kafang_check_main(x,y)
