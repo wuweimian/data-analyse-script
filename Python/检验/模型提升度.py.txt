@@ -1,0 +1,75 @@
+# -*- coding: utf-8 -*-
+
+
+import genvs as GENV
+G_ENV = GENV.GENVS()
+import pandas as pd
+from sklearn.externals import joblib
+import report
+
+def model_result_fenix(col):
+    # 读取文件信息
+    df_dir = G_ENV.baseDir + "/" + G_ENV.projectId + "/work_file/iris.txt"
+    df = pd.read_csv(df_dir, sep='|')
+    col_list = col.split('|')
+    data = df[col_list]
+    data=data.fillna(data.mean())
+
+    # 取前特征变量
+    x = (data.iloc[:, 1:len(data.columns) - 1]).values
+    #加载模型，预测结果
+    model = joblib.load(G_ENV.get_result_dir(),"模型实例")
+    probability = model.predict_proba(x)
+    probability_frame = pd.DataFrame(probability, columns=['not_lost_rate', 'lost_rate'])
+
+
+    result = {
+        'phone': data.phone.values,
+        'flag': data.flag.values,
+        'not_lost_rate': probability_frame.not_lost_rate.values,
+        'lost_rate': probability_frame.lost_rate.values
+    }
+
+    result_frame = pd.DataFrame(result, columns=['phone', 'flag', 'not_lost_rate', 'lost_rate']
+                                ).sort_index(by='lost_rate', ascending=False)
+
+    num_of_lost_really = result_frame[result_frame['flag'] == 1].count()[0]
+
+    # 分层计算
+    result_str=""
+    rate = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
+    print("分层|总数|负样本|正样本|命中率|覆盖度")
+    result_str+="分层|总数|负样本|正样本|命中率|覆盖度\n"
+    for i in rate:
+        # 获取分层切片数
+        data_sum = i * result_frame.count()[0]
+        data_qiepian = result_frame[0:int(data_sum)]
+
+        data_0 = data_qiepian[data_qiepian.flag == 0].count()[0]
+        data_1 = data_qiepian[data_qiepian.flag == 1].count()[0]
+
+        per = str(i * 100) + "%"
+        pos_rate = str(float('%.2f' % (data_1 / (data_qiepian.count()[0]) * 100))) + "%"
+        cover_rate = str(float('%.2f' % (data_1 / num_of_lost_really * 100))) + "%"
+
+        # 总的命中率
+        data_all_sum = 1 * result_frame.count()[0]
+        data_all_qiepian = result_frame[0:int(data_all_sum)]
+        data_all_1 = data_qiepian[data_all_qiepian.flag == 1].count()[0]
+        pos_all_rate = str(float('%.2f' % (data_all_1 / (data_all_qiepian.count()[0]) * 100))) + "%"
+
+        #提升度
+        upgrading = pos_rate / pos_all_rate
+
+        print("%s|%d|%d|%d|%s|%s" % (per, int(data_sum), data_0, data_1, pos_rate, cover_rate))
+        result_str +="%s|%d|%d|%d|%s|%s\n" % (per, int(data_sum), data_0, data_1, pos_rate, cover_rate)
+
+    # 保存结果
+    report.savestrmd(G_ENV.get_result_dir(), "模型提升度", result_str)
+if (__name__ == '__main__') & ('XXJOB' not in globals()):
+    G_ENV.baseDir="C:/Users/Tim/Desktop/automodel/V2/data"
+    G_ENV.projectId = "projectId"
+    G_ENV.jobId="jobId"
+    G_ENV.instanceId="instanceId"
+
+    model_result_fenix("sepal_length|sepal_width|petal_length|petal_width|species")
