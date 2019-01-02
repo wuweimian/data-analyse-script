@@ -27,8 +27,7 @@ col：传入特征列值，以|分隔
 """
 def dataQualityCheck(col):
 	##########################################################################
-    df_dir = G_ENV.baseDir+"/"+G_ENV.projectId+"/work_file/iris.txt"
-    df = pd.read_csv(df_dir, sep='|')
+    df = G_ENV.get_features_data(col)
     col_list = col.split('|')
     df = df[col_list]
 
