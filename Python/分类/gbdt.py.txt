@@ -26,22 +26,29 @@ def model_evaluate(model, x_train, x_test, y_train, y_test):
     result_str = ""
     result_str += u'* 训练集准确率：{}\n'.format(accuracy_score(y_train, y_train_pred))
     result_str += u'* 测试集准确率：{}\n'.format(accuracy_score(y_test, y_test_pred))
-    result_str += u'---\n'
+    result_str2 = "类别|精确率|召回率|F值|测试数量|\n"
     if hasattr(model, 'predict_proba'):
         y_score = model.predict_proba(x_test)
         #print("model.classes:{}".format(model.classes_))
         #print("y_score:{}".format(y_score))
         y_hat = model.predict(x_test)
     #result_str += '指标:{}\n'.format(precision_recall_fscore_support(y_test, y_hat))
-    result_str += 'report:\n'
-    result_str += '{}\n'.format(classification_report(y_test, y_hat))
+    #result_str += 'report:\n'
+    #result_str += '{}\n'.format(classification_report(y_test, y_hat))
+    gbdt_report = classification_report(y_test, y_hat)
+    lines = gbdt_report.splitlines()
+    res = []
+    for row in lines[2:-2]:
+       rows = row.split('      ')
+       result_str2 += u'\n'
+       result_str2 += "{}|{}|{}|{}|{}|\n".format(rows[1], rows[2], rows[3], rows[4], rows[5])
     fpr, tpr, thresholds = sklearn.metrics.roc_curve(y_test, y_score[:, 1], pos_label=2)
     auc = sklearn.metrics.auc(fpr, tpr)
-    result_str += u'---\n'
-    result_str += "* auc:{}\n".format(auc)
+    #result_str += u'\n'
+    #result_str += "* auc:{}\n".format(auc)
     # 保存结果
     report.savestrmd(G_ENV.get_result_dir(), "GDBT模型评估结果", result_str)
-
+    report.savestrtb(G_ENV.get_result_dir(), "模型测试集结果如下", result_str2)
 
 
 def gbdts(x_col,y_col, train_size=0.7,
@@ -55,11 +62,10 @@ def gbdts(x_col,y_col, train_size=0.7,
          warm_start=False
          ):
     col = x_col+"|"+y_col
-    df_dir = G_ENV.baseDir + "/" + G_ENV.projectId + "/work_file/iris.txt"
-    df = pd.read_csv(df_dir, sep='|')
+    df = G_ENV.get_features_data(col)
     df = df.dropna()
     x = (df.iloc[:, 0:len(df.columns) - 1]).values
-    y = (df.iloc[:, len(df.columns) - 1]).values
+    y = df[y_col].values
     x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=train_size, random_state=0)
     GBDT = GradientBoostingClassifier(criterion=criterion, init=init,
          learning_rate=learning_rate, loss=loss, max_depth=max_depth,
@@ -85,9 +91,9 @@ if (__name__ == '__main__') & ('XXJOB' not in globals()):
     G_ENV.projectId = "projectId"
     G_ENV.jobId="jobId"
     G_ENV.instanceId="instanceId"
-    x_col = "sepal_length|sepal_width|petal_length|petal_width|species"
+    x_col = "2g_liuliang|total_liuliang|3g_liuliang|country_liuliang|mangshi_liuliang|arpu|xianshi_liuliang|province_liuliang"
     train_size = 0.7
     n_estimators = 10
     learning_rate = 0.1
     max_depth = 8
-    gbdts(x_col,"species", train_size)
+    gbdts(x_col,"flag", train_size)
