@@ -20,8 +20,9 @@ def show_data_head(des_dir, n=10):
 col：传入特征列值，以|分隔
 flag：标签列
 """
-def model_coeff(col,flag):
+def model_coeff(x_col,flag):
 	##########################################################################
+    col = x_col + "|" + flag
     df = G_ENV.get_features_data(col)
 
     x, y = df.iloc[:, 1:].values, df[flag].values
