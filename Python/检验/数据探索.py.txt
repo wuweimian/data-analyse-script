@@ -21,9 +21,9 @@ def show_data_head(des_dir, n=10):
 col：传入特征列值，以|分隔
 flag：为标签列值，因为要统计正负样本的比例
 """
-def dataExploer(col,flag):
+def dataExploer(x_col,flag):
 	##########################################################################
-    
+    col = x_col + "|" + flag
     df = G_ENV.get_features_data(col)
     df = df.fillna(df.mean)
     col_list = col.split('|')
@@ -152,4 +152,4 @@ if (__name__ == '__main__') & ('XXJOB' not in globals()):
     G_ENV.jobId="jobId"
     G_ENV.instanceId="instanceId"
 
-    dataExploer("sepal_length|sepal_width|petal_length|petal_width|species","species")
+    dataExploer("2g_liuliang|total_liuliang|3g_liuliang|country_liuliang|mangshi_liuliang|arpu|xianshi_liuliang|province_liuliang","flag")
