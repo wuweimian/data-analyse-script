@@ -34,6 +34,7 @@ def dataExploer(x_col,flag):
     # 数据分箱指标探索
     iv_dict = {}
     result_str = ""
+    result_str += "分箱|特征变量|负样本数|正样本数|箱内样本数|负样本占比|正样本占比|正样本总体占比|箱内占比|WOE|IV\n"
     # 基于聚类分析的方法，对列进行分箱
     for i in col_list:
         bin_list = []
@@ -89,8 +90,8 @@ def dataExploer(x_col,flag):
                 bin_1_sample_all_rate = sample_1 / sample_all
                 in_bin_rate = bin_1_num / bin_sample_num
                 if (bin_0_num == 0) or (bin_1_num == 0):
-                    WOE = 0
-                    IV = 0
+                    WOE = 0.0
+                    IV = 0.0
                 else:
                     WOE = math.log(bin_1_rate / bin_0_rate, math.e)
                     IV = (bin_1_rate - bin_0_rate) * WOE
@@ -98,12 +99,12 @@ def dataExploer(x_col,flag):
                 print('{}|'.format(m + 1), end='')
 
                 print('[%.2f, %.2f]|' % (bin_list[m], bin_list[m + 1]), end='')
-                print('{}|{}|{}|{:.2%}|{:.2%}|{:.2%}|{:.2%}|{}|{}'.format(bin_0_num, bin_1_num, bin_sample_num, bin_0_rate, bin_1_rate,
+                print('{}|{}|{}|{:.2%}|{:.2%}|{:.2%}|{:.2%}|{:.4}|{:.4}'.format(bin_0_num, bin_1_num, bin_sample_num, bin_0_rate, bin_1_rate,
                                                           bin_1_sample_all_rate, in_bin_rate, WOE, IV))
                 result_str += "\n"
                 result_str += '{}|'.format(m + 1)
                 result_str +='[%.2f, %.2f]|' % (bin_list[m], bin_list[m + 1])
-                result_str +='{}|{}|{}|{:.2%}|{:.2%}|{:.2%}|{:.2%}|{}|{}'.format(bin_0_num, bin_1_num, bin_sample_num, bin_0_rate, bin_1_rate,
+                result_str +='{}|{}|{}|{:.2%}|{:.2%}|{:.2%}|{:.2%}|{:.4}|{:.4}'.format(bin_0_num, bin_1_num, bin_sample_num, bin_0_rate, bin_1_rate,
                                                           bin_1_sample_all_rate, in_bin_rate, WOE, IV)
             else:
                 bin_0_num = data_bin[
@@ -116,23 +117,23 @@ def dataExploer(x_col,flag):
                 bin_1_sample_all_rate = sample_1 / sample_all
                 in_bin_rate = bin_1_num / bin_sample_num
                 if (bin_0_num == 0) or (bin_1_num == 0):
-                    WOE = 0
-                    IV = 0
+                    WOE = 0.0
+                    IV = 0.0
                 else:
                     WOE = math.log(bin_1_rate / bin_0_rate, math.e)
                     IV = (bin_1_rate - bin_0_rate) * WOE
                     iv_sum += IV
                 print('{}|'.format(m + 1), end='')
                 print('[%.2f, %.2f]|' % (bin_list[m], bin_list[m + 1]), end='')
-                print('{}|{}|{}|{:.2%}|{:.2%}|{:.2%}|{:.2%}|{}|{}'.format(bin_0_num, bin_1_num, bin_sample_num, bin_0_rate, bin_1_rate,
+                print('{}|{}|{}|{:.2%}|{:.2%}|{:.2%}|{:.2%}|{:.4}|{:.4}'.format(bin_0_num, bin_1_num, bin_sample_num, bin_0_rate, bin_1_rate,
                                                           bin_1_sample_all_rate, in_bin_rate, WOE, IV))
                 result_str += "\n"
                 result_str += '{}|'.format(m + 1)
                 result_str +='[%.2f, %.2f]|' % (bin_list[m], bin_list[m + 1])
-                result_str +='{}|{}|{}|{:.2%}|{:.2%}|{:.2%}|{:.2%}|{}|{}\n'.format(bin_0_num, bin_1_num, bin_sample_num, bin_0_rate, bin_1_rate,
+                result_str +='{}|{}|{}|{:.2%}|{:.2%}|{:.2%}|{:.2%}|{:.4}|{:.4}\n'.format(bin_0_num, bin_1_num, bin_sample_num, bin_0_rate, bin_1_rate,
                                                           bin_1_sample_all_rate, in_bin_rate, WOE, IV)
-        print('总计||||||||||{}'.format(iv_sum))
-        result_str +='总计| | | | | | | | | |{}\n'.format(iv_sum)
+        print('总计||||||||||{:.4}'.format(float(iv_sum)))
+        result_str +='总计| | | | | | | | | |{:.4}\n'.format(float(iv_sum))
 
         result_str+="\n"
         iv_dict[i] = iv_sum
