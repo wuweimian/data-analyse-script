@@ -19,24 +19,27 @@ def show_data_head(des_dir, n=10):
 def model_evaluate(model, x_train, x_test, y_train, y_test):
     y_train_pred = model.predict(x_train)
     y_test_pred = model.predict(x_test)
-    result_str = ""
-    result_str += u'* 训练集准确率：{}\n'.format(accuracy_score(y_train, y_train_pred))
-    result_str += u'* 测试集准确率：{}\n'.format(accuracy_score(y_test, y_test_pred))
-    result_str += u'---\n'
+    result_str = "类别|准确率\n"
+    result_str += "{}|{}\n".format("训练集准确率",accuracy_score(y_train, y_train_pred))
+    result_str += "{}|{}\n".format("测试集准确率", accuracy_score(y_test, y_test_pred))
+    result_str2 = "类别|精确率|召回率|F值|测试数量\n"
     if hasattr(model, 'predict_proba'):
         y_score = model.predict_proba(x_test)
-        #print("model.classes:{}".format(model.classes_))
-        #print("y_score:{}".format(y_score))
         y_hat = model.predict(x_test)
-    #result_str += '指标:{}\n'.format(precision_recall_fscore_support(y_test, y_hat))
-    result_str += 'report:\n'
-    result_str += '{}\n'.format(classification_report(y_test, y_hat))
-    fpr, tpr, thresholds = sklearn.metrics.roc_curve(y_test, y_score[:, 1], pos_label=2)
+
+    decision_report = classification_report(y_test, y_hat)
+    lines = decision_report.splitlines()
+    res = []
+    for row in lines[2:-2]:
+       rows = row.split('      ')
+       result_str2 += "{}|{}|{}|{}|{}\n".format(rows[1].replace(' ', ''), rows[2].replace(' ', ''), rows[3].replace(' ', ''), rows[4].replace(' ', ''), rows[5].replace(' ', ''))
+
+    fpr, tpr, thresholds = sklearn.metrics.roc_curve(y_test, y_score[:, 1])
     auc = sklearn.metrics.auc(fpr, tpr)
-    result_str += u'---\n'
-    result_str += "* auc:{}\n".format(auc)
+    result_str += "{}|{}\n".format("auc值", auc)
     # 保存结果
-    report.savestrmd(G_ENV.get_result_dir(), "决策树模型评估结果", result_str)
+    report.savestrtb(G_ENV.get_result_dir(), "决策树模型评估结果", result_str)
+    report.savestrtb(G_ENV.get_result_dir(), "决策树测试集结果", result_str2)
 
 """
 参数含义：
@@ -55,19 +58,32 @@ presort：是否预分类数据
 random_state：随机数字发生器的种子
 splitter：特征划分标准	
 """
-def decision(x_col,y_col, train_size=0.7,class_weight=None, criterion='gini', max_depth=None,
-            max_features=None, max_leaf_nodes=None,
-            min_impurity_decrease=0.0, min_impurity_split=None,
-            min_samples_leaf=1, min_samples_split=2,
-            min_weight_fraction_leaf=0.0, presort=False, random_state=None,
-            splitter='best'):
-    col = x_col+"|"+y_col
-    df_dir = G_ENV.baseDir + "/" + G_ENV.projectId + "/work_file/iris.txt"
-    df = pd.read_csv(df_dir, sep='|')
-    df = df.fillna(df.mean)
+def decision(x_col,y_col, train_size,class_weight,criterion,max_depth,max_features,
+             max_leaf_nodes,min_impurity_split,min_samples_leaf,min_samples_split,
+             presort,random_state,splitter):
+    col = x_col + "|" + y_col
+    df = G_ENV.get_features_data(col)
+    df = df.dropna()
     x = (df.iloc[:, 0:len(df.columns) - 1]).values
-    y = (df.iloc[:, len(df.columns) - 1]).values
+    y = df[y_col].values
     x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=train_size, random_state=0)
+
+    if class_weight == 'None':
+        class_weight = None
+    if max_depth == 'None':
+        max_depth = None
+    if max_features == 'None':
+        max_features = None
+    if max_leaf_nodes == 'None':
+        max_leaf_nodes = None
+    if min_impurity_split == 'None':
+        min_impurity_split = None
+    if presort == 'False':
+        presort = False
+    if presort == 'True':
+        presort = True
+    if random_state == 'None':
+        random_state = None
     DecistionTree = tree.DecisionTreeClassifier(class_weight=class_weight, criterion=criterion, max_depth=max_depth,
             max_features=max_features, max_leaf_nodes=max_leaf_nodes,
             min_impurity_decrease=min_impurity_decrease, min_impurity_split=min_impurity_split,
@@ -89,9 +105,21 @@ if (__name__ == '__main__') & ('XXJOB' not in globals()):
     G_ENV.projectId = "projectId"
     G_ENV.jobId="jobId"
     G_ENV.instanceId="instanceId"
-    x_col = "sepal_length|sepal_width|petal_length|petal_width|species"
+    x_col = "2g_liuliang|total_liuliang|3g_liuliang|country_liuliang|mangshi_liuliang|arpu|xianshi_liuliang|province_liuliang"
     train_size = 0.7
-    n_estimators = 10
-    learning_rate = 0.1
-    max_depth = 8    
-    decision(x_col,"species", train_size)
+    class_weight = None
+    criterion = 'gini'
+    max_depth = None
+    max_features = None
+    max_leaf_nodes = None
+    min_impurity_decrease = 0.0
+    min_impurity_split = None
+    min_samples_leaf = 1
+    min_samples_split = 2
+    min_weight_fraction_leaf = 0.0
+    presort = False
+    random_state = None
+    splitter = 'best'
+    decision(x_col,"flag", train_size,class_weight,criterion,max_depth,max_features,
+             max_leaf_nodes,min_impurity_split,min_samples_leaf,min_samples_split,
+             presort,random_state,splitter)
