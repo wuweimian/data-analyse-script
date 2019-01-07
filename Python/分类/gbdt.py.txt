@@ -62,7 +62,7 @@ def gbdts(x_col,y_col, train_size,criterion,init
     #     max_features = None
     # if max_leaf_nodes == 'None':
     #     max_leaf_nodes = None
-    GBDT = GradientBoostingClassifier(criterion=criterion)
+    GBDT = GradientBoostingClassifier(criterion=criterion,init=init)
     model_GBDT = GBDT.fit(x_train, y_train)
     # print("---init: ",type(init))
     # print("---max_features: ", type(max_features))
