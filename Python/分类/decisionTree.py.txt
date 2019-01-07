@@ -64,7 +64,8 @@ def decision(x_col,y_col, train_size,class_weight,criterion,max_depth,max_featur
     col = x_col + "|" + y_col
     df = G_ENV.get_features_data(col)
     df = df.dropna()
-    x = (df.iloc[:, 0:len(df.columns) - 1]).values
+    col_list = x_col.split('|')
+    x = (df[col_list]).values
     y = df[y_col].values
     x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=train_size, random_state=0)
 
