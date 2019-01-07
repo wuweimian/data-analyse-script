@@ -59,7 +59,7 @@ random_state：随机数字发生器的种子
 splitter：特征划分标准	
 """
 def decision(x_col,y_col, train_size,class_weight,criterion,max_depth,max_features,
-             max_leaf_nodes,min_impurity_split,min_samples_leaf,min_samples_split,
+             max_leaf_nodes,min_samples_leaf,min_samples_split,
              presort,random_state,splitter):
     col = x_col + "|" + y_col
     df = G_ENV.get_features_data(col)
@@ -76,8 +76,8 @@ def decision(x_col,y_col, train_size,class_weight,criterion,max_depth,max_featur
         max_features = None
     if max_leaf_nodes == 'None':
         max_leaf_nodes = None
-    if min_impurity_split == 'None':
-        min_impurity_split = None
+    # if min_impurity_split == 'None':
+    #     min_impurity_split = None
     if presort == 'False':
         presort = False
     if presort == 'True':
@@ -86,7 +86,7 @@ def decision(x_col,y_col, train_size,class_weight,criterion,max_depth,max_featur
         random_state = None
     DecistionTree = tree.DecisionTreeClassifier(class_weight=class_weight, criterion=criterion, max_depth=max_depth,
             max_features=max_features, max_leaf_nodes=max_leaf_nodes,
-             min_impurity_split=min_impurity_split,
+            # min_impurity_split=min_impurity_split,
             min_samples_leaf=min_samples_leaf, min_samples_split=min_samples_split,
              presort=presort, random_state=random_state,
             splitter=splitter)
