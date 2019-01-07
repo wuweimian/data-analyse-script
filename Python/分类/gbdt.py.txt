@@ -47,7 +47,7 @@ def model_evaluate(model, x_train, x_test, y_train, y_test):
     report.savestrtb(G_ENV.get_result_dir(), "GBDT模型评估结果", result_str)
     report.savestrtb(G_ENV.get_result_dir(), "GBDT测试集结果", result_str2)
 
-def gbdts(x_col,y_col, train_size,criterion
+def gbdts(x_col,y_col, train_size,criterion,init
           ):
     col = x_col+"|"+y_col
     df = G_ENV.get_features_data(col)
@@ -56,8 +56,8 @@ def gbdts(x_col,y_col, train_size,criterion
     x = (df[col_list]).values
     y = df[y_col].values
     x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=train_size, random_state=0)
-    # if init == 'None':
-    #     init = None
+    if init == 'None':
+        init = None
     # if max_features == 'None':
     #     max_features = None
     # if max_leaf_nodes == 'None':
@@ -86,10 +86,10 @@ if (__name__ == '__main__') & ('XXJOB' not in globals()):
     learning_rate = 0.1
     max_depth = 8
     criterion = 'friedman_mse'
-    init = 'None'
+    init = None
     learning_rate = 0.1
     loss = 'deviance'
     max_depth = 8
     max_features = None
     max_leaf_nodes = None,
-    gbdts(x_col,"flag",train_size,criterion)
+    gbdts(x_col,"flag",train_size,criterion,init)
