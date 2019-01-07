@@ -47,7 +47,7 @@ def model_evaluate(model, x_train, x_test, y_train, y_test):
     report.savestrtb(G_ENV.get_result_dir(), "GBDT模型评估结果", result_str)
     report.savestrtb(G_ENV.get_result_dir(), "GBDT测试集结果", result_str2)
 
-def gbdts(x_col,y_col, train_size
+def gbdts(x_col,y_col, train_size,criterion
           ):
     col = x_col+"|"+y_col
     df = G_ENV.get_features_data(col)
@@ -62,7 +62,7 @@ def gbdts(x_col,y_col, train_size
     #     max_features = None
     # if max_leaf_nodes == 'None':
     #     max_leaf_nodes = None
-    GBDT = GradientBoostingClassifier()
+    GBDT = GradientBoostingClassifier(criterion=criterion)
     model_GBDT = GBDT.fit(x_train, y_train)
     # print("---init: ",type(init))
     # print("---max_features: ", type(max_features))
@@ -92,4 +92,4 @@ if (__name__ == '__main__') & ('XXJOB' not in globals()):
     max_depth = 8
     max_features = None
     max_leaf_nodes = None,
-    gbdts(x_col,"flag",train_size)
+    gbdts(x_col,"flag",train_size,criterion)
