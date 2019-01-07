@@ -82,8 +82,8 @@ def randomforest(x_col,y_col, train_size,bootstrap,class_weight,criterion,max_de
               criterion=criterion,max_depth=max_depth,
              max_features=max_features, max_leaf_nodes=max_leaf_nodes,
              min_impurity_split=min_impurity_split,
-             min_samples_split=min_samples_split,
-            min_weight_fraction_leaf=min_weight_fraction_leaf, n_estimators=n_estimators, n_jobs=n_jobs,
+            min_samples_leaf=min_samples_leaf, min_samples_split=min_samples_split,
+             n_estimators=n_estimators, n_jobs=n_jobs,
             oob_score=oob_score, random_state=random_state, verbose=verbose, warm_start=warm_start)
     model_RandomForest = RandomForest.fit(x_train, y_train)
     #³Ö¾Ã»¯
