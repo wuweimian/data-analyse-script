@@ -6,12 +6,14 @@ G_ENV = GENV.GENVS()
 
 import pandas as pd
 import sklearn.metrics
+import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import classification_report
 from sklearn.metrics import precision_recall_fscore_support
 from sklearn.preprocessing import LabelEncoder
+import matplotlib.pyplot as plt
 import report
 
 def show_data_head(des_dir, n=10):
@@ -23,39 +25,33 @@ def show_data_head(des_dir, n=10):
 def model_evaluate(model, x_train, x_test, y_train, y_test):
     y_train_pred = model.predict(x_train)
     y_test_pred = model.predict(x_test)
-    result_str = ""
-    result_str += u'* 训练集准确率：{}\n'.format(accuracy_score(y_train, y_train_pred))
-    result_str += u'* 测试集准确率：{}\n'.format(accuracy_score(y_test, y_test_pred))
-    result_str2 = "类别|精确率|召回率|F值|测试数量|\n"
+    result_str = "类别|准确率\n"
+    result_str += "{}|{}\n".format("训练集准确率",accuracy_score(y_train, y_train_pred))
+    result_str += "{}|{}\n".format("测试集准确率", accuracy_score(y_test, y_test_pred))
+    result_str2 = "类别|精确率|召回率|F值|测试数量\n"
     if hasattr(model, 'predict_proba'):
         y_score = model.predict_proba(x_test)
-        #print("model.classes:{}".format(model.classes_))
-        #print("y_score:{}".format(y_score))
         y_hat = model.predict(x_test)
-    #result_str += '指标:{}\n'.format(precision_recall_fscore_support(y_test, y_hat))
-    #result_str += 'report:\n'
-    #result_str += '{}\n'.format(classification_report(y_test, y_hat))
+
     gbdt_report = classification_report(y_test, y_hat)
     lines = gbdt_report.splitlines()
     res = []
     for row in lines[2:-2]:
        rows = row.split('      ')
-       result_str2 += u'\n'
-       result_str2 += "{}|{}|{}|{}|{}|\n".format(rows[1], rows[2], rows[3], rows[4], rows[5])
-    fpr, tpr, thresholds = sklearn.metrics.roc_curve(y_test, y_score[:, 1], pos_label=2)
-    auc = sklearn.metrics.auc(fpr, tpr)
-    #result_str += u'\n'
-    #result_str += "* auc:{}\n".format(auc)
-    # 保存结果
-    report.savestrmd(G_ENV.get_result_dir(), "GDBT模型评估结果", result_str)
-    report.savestrtb(G_ENV.get_result_dir(), "模型测试集结果如下", result_str2)
+       result_str2 += "{}|{}|{}|{}|{}\n".format(rows[1].replace(' ', ''), rows[2].replace(' ', ''), rows[3].replace(' ', ''), rows[4].replace(' ', ''), rows[5].replace(' ', ''))
 
+    fpr, tpr, thresholds = sklearn.metrics.roc_curve(y_test, y_score[:, 1])
+    auc = sklearn.metrics.auc(fpr, tpr)
+    result_str += "{}|{}\n".format("auc值", auc)
+    # 保存结果
+    report.savestrtb(G_ENV.get_result_dir(), "GBDT模型评估结果", result_str)
+    report.savestrtb(G_ENV.get_result_dir(), "GBDT测试集结果", result_str2)
 
 def gbdts(x_col,y_col, train_size=0.7,
          criterion='friedman_mse', init=None,
          learning_rate=0.1, loss='deviance', max_depth=8,
          max_features=None, max_leaf_nodes=None,
-         min_impurity_decrease=0.0, min_impurity_split=None,
+         min_impurity_split=None,
          min_samples_leaf=1, min_samples_split=2,
          min_weight_fraction_leaf=0.0, n_estimators=10,
          presort='auto', random_state=None, subsample=1.0, verbose=0,
@@ -64,19 +60,19 @@ def gbdts(x_col,y_col, train_size=0.7,
     col = x_col+"|"+y_col
     df = G_ENV.get_features_data(col)
     df = df.dropna()
-    x = (df.iloc[:, 0:len(df.columns) - 1]).values
+    col_list = x_col.split('|')
+    x = (df[col_list]).values
     y = df[y_col].values
     x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=train_size, random_state=0)
     GBDT = GradientBoostingClassifier(criterion=criterion, init=init,
          learning_rate=learning_rate, loss=loss, max_depth=max_depth,
          max_features=max_features, max_leaf_nodes=max_leaf_nodes,
-         min_impurity_decrease=min_impurity_decrease, min_impurity_split=min_impurity_split,
+          min_impurity_split=min_impurity_split,
          min_samples_leaf=min_samples_leaf, min_samples_split=min_samples_split,
          min_weight_fraction_leaf=min_weight_fraction_leaf, n_estimators=n_estimators,
          presort=presort, random_state=random_state, subsample=subsample, verbose=verbose,
          warm_start=warm_start)
     model_GBDT = GBDT.fit(x_train, y_train)
-    print(model_GBDT)
     #持久化
     report.saveskmd(G_ENV.get_result_dir(), "模型实例", model_GBDT)
 
@@ -96,4 +92,4 @@ if (__name__ == '__main__') & ('XXJOB' not in globals()):
     n_estimators = 10
     learning_rate = 0.1
     max_depth = 8
-    gbdts(x_col,"flag", train_size)
+    gbdts(x_col,"flag")
