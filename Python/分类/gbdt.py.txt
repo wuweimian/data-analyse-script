@@ -48,7 +48,7 @@ def model_evaluate(model, x_train, x_test, y_train, y_test):
     report.savestrtb(G_ENV.get_result_dir(), "GBDT测试集结果", result_str2)
 
 def gbdts(x_col,y_col, train_size,criterion,init,learning_rate,loss,max_depth,
-          max_features,max_leaf_nodes,min_impurity_split
+          max_features,max_leaf_nodes,min_impurity_split,min_samples_leaf,min_samples_split
           ):
     col = x_col+"|"+y_col
     df = G_ENV.get_features_data(col)
@@ -65,7 +65,8 @@ def gbdts(x_col,y_col, train_size,criterion,init,learning_rate,loss,max_depth,
         max_leaf_nodes = None
     GBDT = GradientBoostingClassifier(criterion=criterion,init=init,learning_rate=learning_rate,
                                       loss=loss,max_depth=max_depth,max_features=max_features,
-                                      max_leaf_nodes=max_leaf_nodes,min_impurity_split=min_impurity_split)
+                                      max_leaf_nodes=max_leaf_nodes,min_impurity_split=min_impurity_split,
+                                      min_samples_leaf=min_samples_leaf, min_samples_split=min_samples_split)
     model_GBDT = GBDT.fit(x_train, y_train)
 
     #持久化
@@ -95,5 +96,7 @@ if (__name__ == '__main__') & ('XXJOB' not in globals()):
     max_features = None
     max_leaf_nodes = None
     min_impurity_split=None
+    min_samples_leaf=1
+    min_samples_split = 2
     gbdts(x_col,"flag",train_size,criterion,init,learning_rate,loss,max_depth,max_features,max_leaf_nodes,
-          min_impurity_split)
+          min_impurity_split,min_samples_leaf,min_samples_split)
