@@ -46,8 +46,8 @@ def model_evaluate(model, x_train, x_test, y_train, y_test):
 
 
 
-def knneighbors(x_col,y_col, train_size=0.7,algorithm='auto', leaf_size=30, metric='minkowski',
-           metric_params=None, n_jobs=1, n_neighbors=2, p=2,weights='uniform'):
+def knneighbors(x_col,y_col, train_size, algorithm, leaf_size,metric,metric_params,
+                n_jobs,n_neighbors,p,weights):
     col = x_col+"|"+y_col
     df = G_ENV.get_features_data(col)
     df = df.dropna()
@@ -55,6 +55,9 @@ def knneighbors(x_col,y_col, train_size=0.7,algorithm='auto', leaf_size=30, metr
     x = (df[col_list]).values
     y = df[y_col].values
     x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=train_size, random_state=0)
+
+    if metric_params == 'False':
+        metric_params = False
     KNN = KNeighborsClassifier(algorithm=algorithm, leaf_size=leaf_size, metric=metric,
            metric_params=metric_params, n_jobs=n_jobs, n_neighbors=n_neighbors, p=p, weights=weights)
     model_KNN = KNN.fit(x_train, y_train)
@@ -74,9 +77,13 @@ if (__name__ == '__main__') & ('XXJOB' not in globals()):
     G_ENV.instanceId="instanceId"
     x_col = "2g_liuliang|total_liuliang|3g_liuliang|country_liuliang|mangshi_liuliang|arpu|xianshi_liuliang|province_liuliang"
     train_size = 0.7
-
     algorithm = 'auto'
     leaf_size = 30
     metric = 'minkowski'
+    metric_params = None
+    n_jobs = 1
     n_neighbors = 2
-    knneighbors(x_col,"flag", train_size, algorithm, leaf_size)
+    p = 2
+    weights = 'uniform'
+    knneighbors(x_col,"flag", train_size, algorithm, leaf_size,metric,metric_params,
+                n_jobs,n_neighbors,p,weights)
