@@ -23,11 +23,4 @@ def random_sample_main(x_col,n=None, frac=None, replace=False, weights=None, ran
     # 生成报告
     report.createhtml("随机抽样结果", G_ENV.get_result_dir())
             
-if __name__ == '__main__':
-    G_ENV.baseDir="C:/Users/Tim/Desktop/automodel/V2/data"
-    G_ENV.projectId = "projectId"
-    G_ENV.jobId="jobId"
-    G_ENV.instanceId="instanceId"
-    x_col = "a_age_x|a_arpu_x|a_age_1|a_age_y"
-    n=2
-    random_sample_main(x_col,n)
+
