@@ -14,13 +14,26 @@ replace：是否为有放回抽样，取replace=True时为有放回抽样。
 weights这个是每个样本的权重。
 axis是选择抽取数据的行还是列。axis=0的时是抽取行，axis=1时是抽取列
 """
-def random_sample_main(x_col,n=None, frac=None, replace=False, weights=None, random_state=None, axis=None):
+def random_sample_main(x_col,n,frac,replace,weights,random_state,axis):
     data = G_ENV.get_features_data(x_col)
+
+    if n == 'None':
+        n = None
+    if frac == 'None':
+        frac = None
+    if replace == 'False':
+        replace = False
+    if replace == 'True':
+        replace = True
+    if weights == 'None':
+        weights = None
+    if random_state == 'None':
+        random_state = None
+    if axis == 'None':
+        axis = None
     data = data.sample(n=n, frac=frac, replace=replace, weights=weights, random_state=random_state, axis=axis)
 
     # 保存前五行数据预览
     report.savedataframe(G_ENV.get_result_dir(), "随机抽样结果", data.head())
     # 生成报告
     report.createhtml("随机抽样结果", G_ENV.get_result_dir())
-            
-
