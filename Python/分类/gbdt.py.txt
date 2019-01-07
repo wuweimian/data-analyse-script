@@ -49,7 +49,7 @@ def model_evaluate(model, x_train, x_test, y_train, y_test):
 
 def gbdts(x_col,y_col, train_size,criterion,init,learning_rate,loss,max_depth,
           max_features,max_leaf_nodes,min_impurity_split,min_samples_leaf,min_samples_split,
-          n_estimators,presort
+          n_estimators,presort,random_state,subsample
           ):
     col = x_col+"|"+y_col
     df = G_ENV.get_features_data(col)
@@ -68,7 +68,8 @@ def gbdts(x_col,y_col, train_size,criterion,init,learning_rate,loss,max_depth,
                                       loss=loss,max_depth=max_depth,max_features=max_features,
                                       max_leaf_nodes=max_leaf_nodes,min_impurity_split=min_impurity_split,
                                       min_samples_leaf=min_samples_leaf, min_samples_split=min_samples_split,
-                                      n_estimators=n_estimators, presort=presort)
+                                      n_estimators=n_estimators, presort=presort,random_state=random_state,
+                                      subsample=subsample)
     model_GBDT = GBDT.fit(x_train, y_train)
 
     #³Ö¾Ã»¯
@@ -103,5 +104,8 @@ if (__name__ == '__main__') & ('XXJOB' not in globals()):
     min_weight_fraction_leaf = 0.0
     n_estimators = 10
     presort = 'auto'
+    random_state = None
+    subsample = 1.0
     gbdts(x_col,"flag",train_size,criterion,init,learning_rate,loss,max_depth,max_features,max_leaf_nodes,
-          min_impurity_split,min_samples_leaf,min_samples_split,n_estimators,presort)
+          min_impurity_split,min_samples_leaf,min_samples_split,n_estimators,presort,
+          random_state,subsample)
