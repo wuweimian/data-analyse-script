@@ -66,8 +66,8 @@ def neurals(x_col,y_col, train_size,activation,alpha,batch_size,beta_1,beta_2,ea
         nesterovs_momentum = True
     if nesterovs_momentum == 'False':
         nesterovs_momentum = False
-    if random_state == 'False':
-        random_state = False
+    if random_state == 'None':
+        random_state = None
     if shuffle == 'True':
         shuffle = True
     if shuffle == 'False':
