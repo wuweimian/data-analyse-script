@@ -59,9 +59,9 @@ def neurals(x_col,y_col, train_size,activation,alpha,batch_size,beta_1,beta_2,ea
     x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=train_size, random_state=0)
 
     if early_stopping == 'False':
-        random_state = False
+        early_stopping = False
     if early_stopping == 'True':
-        random_state = True
+        early_stopping = True
     if nesterovs_momentum == 'True':
         nesterovs_momentum = True
     if nesterovs_momentum == 'False':
