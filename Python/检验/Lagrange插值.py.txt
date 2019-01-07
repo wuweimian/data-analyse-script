@@ -17,7 +17,7 @@ def ployinterp_column(s, n, k=5):
 """
 拉格朗日插值调用函数
 """
-def lagrange_inserp_main(col):
+def lagrange_insert_main(col):
     # 获取数据
     data = G_ENV.get_features_data(col)
     #插入拉格朗日值
@@ -34,4 +34,4 @@ def lagrange_inserp_main(col):
 if __name__ == '__main__':
 
     x_col = "2g_liuliang|total_liuliang|3g_liuliang|country_liuliang|mangshi_liuliang|arpu|xianshi_liuliang|province_liuliang"
-    lagrange_inserp_main(x_col)
+    lagrange_insert_main(x_col)
