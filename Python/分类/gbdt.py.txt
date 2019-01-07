@@ -58,12 +58,15 @@ def gbdts(x_col,y_col, train_size,criterion,init,learning_rate,loss,max_depth,
     x = (df[col_list]).values
     y = df[y_col].values
     x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=train_size, random_state=0)
+    
     if init == 'None':
         init = None
     if max_features == 'None':
         max_features = None
     if max_leaf_nodes == 'None':
         max_leaf_nodes = None
+    if random_state == 'None':
+        random_state = None
     GBDT = GradientBoostingClassifier(criterion=criterion,init=init,learning_rate=learning_rate,
                                       loss=loss,max_depth=max_depth,max_features=max_features,
                                       max_leaf_nodes=max_leaf_nodes,min_impurity_split=min_impurity_split,
