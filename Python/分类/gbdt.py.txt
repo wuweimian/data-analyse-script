@@ -49,7 +49,7 @@ def model_evaluate(model, x_train, x_test, y_train, y_test):
 
 def gbdts(x_col,y_col, train_size,criterion,init,learning_rate,loss,max_depth,
           max_features,max_leaf_nodes,min_impurity_split,min_samples_leaf,min_samples_split,
-          n_estimators,presort,random_state,subsample
+          n_estimators,presort,random_state,subsample,verbose,warm_start
           ):
     col = x_col+"|"+y_col
     df = G_ENV.get_features_data(col)
@@ -58,7 +58,7 @@ def gbdts(x_col,y_col, train_size,criterion,init,learning_rate,loss,max_depth,
     x = (df[col_list]).values
     y = df[y_col].values
     x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=train_size, random_state=0)
-    
+
     if init == 'None':
         init = None
     if max_features == 'None':
@@ -67,12 +67,14 @@ def gbdts(x_col,y_col, train_size,criterion,init,learning_rate,loss,max_depth,
         max_leaf_nodes = None
     if random_state == 'None':
         random_state = None
+    if warm_start == 'False':
+        warm_start = False
     GBDT = GradientBoostingClassifier(criterion=criterion,init=init,learning_rate=learning_rate,
                                       loss=loss,max_depth=max_depth,max_features=max_features,
                                       max_leaf_nodes=max_leaf_nodes,min_impurity_split=min_impurity_split,
                                       min_samples_leaf=min_samples_leaf, min_samples_split=min_samples_split,
                                       n_estimators=n_estimators, presort=presort,random_state=random_state,
-                                      subsample=subsample)
+                                      subsample=subsample,verbose=verbose,warm_start=warm_start)
     model_GBDT = GBDT.fit(x_train, y_train)
 
     #³Ö¾Ã»¯
@@ -109,6 +111,8 @@ if (__name__ == '__main__') & ('XXJOB' not in globals()):
     presort = 'auto'
     random_state = None
     subsample = 1.0
+    verbose = 0
+    warm_start = False
     gbdts(x_col,"flag",train_size,criterion,init,learning_rate,loss,max_depth,max_features,max_leaf_nodes,
           min_impurity_split,min_samples_leaf,min_samples_split,n_estimators,presort,
-          random_state,subsample)
+          random_state,subsample,verbose,warm_start)
