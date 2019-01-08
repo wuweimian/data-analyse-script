@@ -11,10 +11,11 @@ G_ENV = GENV.GENVS()
 单样本t检验调用函数
 """
 def stats_main(x_col,b):
-    a = G_ENV.get_features_data(x_col)
-    a_mean = a.mean()
-
-    t,p = stats.ttest_1samp(a_mean, b)
+    df = G_ENV.get_features_data(x_col)
+    a_mean = df.mean()
+    b_list = b.split('|')
+    b_list = [int(i) for i in b_list]
+    t,p = stats.ttest_1samp(a_mean, b_list)
     result_str="t统计值|p统计值\n"
     result_str+="{}|{}\n".format(t,p)
     # 保存前五行数据预览
