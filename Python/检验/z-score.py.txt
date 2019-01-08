@@ -15,6 +15,7 @@ def z_score_main(x_col):
     np_scaled = preprocessing.scale(data.values)
     pd_scaler = pd.DataFrame(np_scaled)
     # 保存前五行数据预览
-    report.savedataframe(G_ENV.get_result_dir(), "z_score转换结果", pd_scaler)
+    report.savedataframe(G_ENV.get_result_dir(), "z_score转换结果", pd_scaler.head())
     # 生成报告
     report.createhtml("z_score转换结果", G_ENV.get_result_dir())
+            
