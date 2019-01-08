@@ -1,0 +1,28 @@
+# -*- coding: utf-8 -*-
+import pandas as pd
+import report
+from statsmodels.formula.api import ols
+from statsmodels.stats.anova import anova_lm
+import genvs as GENV
+G_ENV = GENV.GENVS()
+
+
+"""
+多因素方差分析调用函数
+x_col,y_col为两个特征列
+"""
+def anova_lm_more_main(x_col,y_col):
+    col = x_col + "|" + y_col
+    data = G_ENV.get_features_data(col)
+    arr = y_col.split("|")
+    formula = a + '~'
+    for i in arr:
+        formula = formula+i+'+'
+    formula = formula[:-1]
+
+    anova_results = anova_lm(ols(formula, data).fit())
+    anova_results.columns = ['自由度', '平方和', '均方和', 'F检验统计量的值', '检验的p值']
+    # 保存数据预览
+    report.savedataframe(G_ENV.get_result_dir(), "多因素方差分析结果", anova_results)
+    # 生成报告
+    report.createhtml("多因素方差分析结果", G_ENV.get_result_dir())
