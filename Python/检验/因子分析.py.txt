@@ -19,13 +19,3 @@ def yinzi_main(x_col,n_components=2):
     report.savedataframe(G_ENV.get_result_dir(), "因子分析结果", pd_data)
     # 生成报告
     report.createhtml("因子分析结果", G_ENV.get_result_dir())
-            
-if __name__ == '__main__':
-    G_ENV.baseDir="C:/Users/Tim/Desktop/automodel/V2/data"
-    G_ENV.projectId = "projectId"
-    G_ENV.jobId="jobId"
-    G_ENV.instanceId="instanceId"
-    x_col = "a_age_x|a_arpu_x|a_age_1|a_age_y"
-    n_components=2
-    yinzi_main(x_col,n_components)
-  
