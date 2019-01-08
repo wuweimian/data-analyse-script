@@ -14,7 +14,7 @@ x_col,y_col为两个特征列
 def anova_lm_main(x_col,y_col):
     col = x_col +"|" + y_col
     data = G_ENV.get_features_data(x_col)
-    formula = x_col+'~'+x_col
+    formula = x_col+'~'+y_col
     model = ols(formula, data).fit()
     anovat = anova_lm(model)
     anovat.columns = ['自由度', '平方和', '均方和', 'F检验统计量的值', '检验的p值']
