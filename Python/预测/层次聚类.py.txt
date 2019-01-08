@@ -4,13 +4,10 @@
 import genvs as GENV
 G_ENV = GENV.GENVS()
 
-import pandas as pd
-import sklearn.metrics
 import numpy as np
-from sklearn.model_selection import train_test_split
+from sklearn.metrics import calinski_harabaz_score
 from sklearn.cluster import AgglomerativeClustering
-from sklearn.metrics import accuracy_score
-from sklearn.metrics import classification_report
+from sklearn.metrics import silhouette_score
 import report
 
 def show_data_head(des_dir, n=10):
@@ -22,30 +19,37 @@ def show_data_head(des_dir, n=10):
 affinity为距离类型
 参数有：
 euclidean：欧式距离（默认值）
-"l1", 
-"l2",
 "manhattan", 曼哈顿距离
- "cosine",
- 'precomputed'
+ "cosine",余弦距离
+ 'precomputed'自定义距离
 如果linkage是"ward",那只有"euclidean" （欧式距离）
 """
-def hierarchy_cluster(x_col,affinity='euclidean', compute_full_tree='auto',
-            connectivity=None, linkage='ward', memory=None, n_clusters=3,
-            pooling_func='deprecated'):
-    col = x_col
-    df_dir = G_ENV.baseDir + "/" + G_ENV.projectId + "/work_file/iris.txt"
-    df = pd.read_csv(df_dir, sep='|')
+def hierarchy_cluster(x_col,affinity,compute_full_tree,connectivity,linkage,
+                      memory,n_clusters,pooling_func):
+    # 获取数据
+    df = G_ENV.get_features_data(x_col)
     array = np.array(df)
+
+    # None类型转换
+    if connectivity == 'None':
+        connectivity = None
+    if memory == 'None':
+        memory = None
     clustering = AgglomerativeClustering(affinity=affinity, compute_full_tree=compute_full_tree,
                             connectivity=connectivity, linkage=linkage, memory=memory, n_clusters=n_clusters,
                             pooling_func=pooling_func)
-    result = clustering.fit(array)
-    #持久化
-    from sklearn.metrics import calinski_harabaz_score
+    result_model = clustering.fit(array)
+    #指标系数
     ch = calinski_harabaz_score(array,clustering.fit_predict(array))
-    print(ch)
-    print(result)
+    ms = silhouette_score(array, clustering.fit_predict(array))
+    result_str = ""
+    result_str += "Calinski-Harabasz分数|轮廓系数\n"
+    result_str += "{}|{}\n".format(ch, ms)
+
+    # 持久化
+    report.saveskmd(G_ENV.get_result_dir(), "模型实例", result_model)
     #生成报告
+    report.savestrtb(G_ENV.get_result_dir(), "层次聚类模型评估结果", result_str)
     report.createhtml("运行结果", G_ENV.get_result_dir())
 
 ########################################################################################
@@ -55,6 +59,13 @@ if (__name__ == '__main__') & ('XXJOB' not in globals()):
     G_ENV.projectId = "projectId"
     G_ENV.jobId="jobId"
     G_ENV.instanceId="instanceId"
-    x_col = "sepal_length|sepal_width|petal_length|petal_width"
-
-    hierarchy_cluster(x_col)
+    x_col = "2g_liuliang|total_liuliang|3g_liuliang|country_liuliang|mangshi_liuliang|arpu|xianshi_liuliang|province_liuliang"
+    affinity = 'euclidean'
+    compute_full_tree = 'auto'
+    connectivity = None
+    linkage = 'ward'
+    memory = None
+    n_clusters = 3
+    pooling_func = 'deprecated'
+    hierarchy_cluster(x_col,affinity,compute_full_tree,connectivity,linkage,
+                      memory,n_clusters,pooling_func)
