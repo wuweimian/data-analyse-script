@@ -1,0 +1,21 @@
+# -*- coding: utf-8 -*-
+import pandas as pd
+import report
+from scipy import stats
+import genvs as GENV
+G_ENV = GENV.GENVS()
+
+
+"""
+配对样本t检验调用函数
+"""
+def ttest_rel_main(x_col,y_col):
+    df1 = G_ENV.get_features_data(x_col)
+    df2 = G_ENV.get_features_data(y_col)
+    t,p = stats.ttest_rel(df1, df2)
+    result_str = "t统计值|p统计值\n"
+    result_str += "{}|{}\n".format(t, p)
+    # 保存前五行数据预览
+    report.savestrtb(G_ENV.get_result_dir(), "配对样本t检验结果", result_str)
+    # 生成报告
+    report.createhtml("配对样本t检验结果", G_ENV.get_result_dir())
