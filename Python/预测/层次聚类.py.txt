@@ -25,7 +25,7 @@ euclidean：欧式距离（默认值）
 如果linkage是"ward",那只有"euclidean" （欧式距离）
 """
 def hierarchy_cluster(x_col,affinity,compute_full_tree,connectivity,linkage,
-                      memory,n_clusters,pooling_func):
+                      n_clusters,pooling_func):
     # 获取数据
     df = G_ENV.get_features_data(x_col)
     array = np.array(df)
@@ -33,11 +33,9 @@ def hierarchy_cluster(x_col,affinity,compute_full_tree,connectivity,linkage,
     # None类型转换
     if connectivity == 'None':
         connectivity = None
-    if memory == 'None':
-        memory = None
-    print(type(memory))
+
     clustering = AgglomerativeClustering(affinity=affinity, compute_full_tree=compute_full_tree,
-                            connectivity=connectivity, linkage=linkage, memory=memory, n_clusters=n_clusters,
+                            connectivity=connectivity, linkage=linkage, n_clusters=n_clusters,
                             pooling_func=pooling_func)
     result_model = clustering.fit(array)
     #指标系数
@@ -69,4 +67,4 @@ if (__name__ == '__main__') & ('XXJOB' not in globals()):
     n_clusters = 3
     pooling_func = 'deprecated'
     hierarchy_cluster(x_col,affinity,compute_full_tree,connectivity,linkage,
-                      memory,n_clusters,pooling_func)
+                      n_clusters,pooling_func)
