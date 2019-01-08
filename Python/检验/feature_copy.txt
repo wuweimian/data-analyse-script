@@ -5,7 +5,6 @@ G_ENV = GENV.GENVS()
 import pandas as pd
 import report
 import file_operate
-import fcntl
 
 
 
@@ -27,6 +26,7 @@ def copydf(feature_df, source_df, feature_key, source_key, source_col, new_col):
 
 
 def copy(feature_key, source_key, source_col, new_col, sep='|'):
+    print("==================")
     feature_dir = G_ENV.baseDir + "/" + G_ENV.projectId + "/work_file/"
     feature_filename = "features.csv"
     source_dir = G_ENV.baseDir + "/" + G_ENV.projectId + "/source_file/"
