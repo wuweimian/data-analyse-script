@@ -5,9 +5,9 @@ G_ENV = GENV.GENVS()
 import pandas as pd
 import report
 import file_operate
+import threading
 
-
-
+lock=threading.Lock()
 def show_data_head(des_dir, n=10):
     df = G_ENV.get_features_data_all().head(n)
     report.savedataframe(des_dir, "特征数据预览", df)
@@ -26,7 +26,7 @@ def copydf(feature_df, source_df, feature_key, source_key, source_col, new_col):
 
 
 def copy(feature_key, source_key, source_col, new_col, sep='|'):
-    print("==================")
+    lock.acquire()
     feature_dir = G_ENV.baseDir + "/" + G_ENV.projectId + "/work_file/"
     feature_filename = "features.csv"
     source_dir = G_ENV.baseDir + "/" + G_ENV.projectId + "/source_file/"
@@ -50,7 +50,7 @@ def copy(feature_key, source_key, source_col, new_col, sep='|'):
     show_data_head(G_ENV.get_result_dir("运行结果"), n=10)
     # 生成报告
     report.createhtml("运行结果", G_ENV.get_result_dir("运行结果"))
-
+    lock.release()
 
 if (__name__ == '__main__') & ('XXJOB' not in globals()):
     G_ENV.baseDir = "C:/Users/Tim/Desktop/automodel/script/V2/data"
