@@ -16,18 +16,9 @@ def anova_lm_main(x_col,a,b):
     formula = a+'~'+b
     model = ols(formula, data).fit()
     anovat = anova_lm(model)
-    print(type(anovat))
+    anovat.columns = ['自由度', '平方和', '均方和', 'F检验统计量的值', '检验的p值']
+    print(anovat.columns)
     # 保存数据预览
     report.savedataframe(G_ENV.get_result_dir(), "单因素方差分析结果", anovat)
     # 生成报告
     report.createhtml("单因素方差分析结果", G_ENV.get_result_dir())
-            
-if __name__ == '__main__':
-    G_ENV.baseDir="C:/Users/Tim/Desktop/automodel/V2/data"
-    G_ENV.projectId = "projectId"
-    G_ENV.jobId="jobId"
-    G_ENV.instanceId="instanceId"
-    x_col = "a_age_x|a_arpu_x|a_age_1|a_age_y"
-    a = "a_age_x"
-    b = "a_arpu_x"
-    anova_lm_main(x_col,a,b)
