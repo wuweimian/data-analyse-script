@@ -35,6 +35,7 @@ def hierarchy_cluster(x_col,affinity,compute_full_tree,connectivity,linkage,
         connectivity = None
     if memory == 'None':
         memory = None
+    print(type(memory))
     clustering = AgglomerativeClustering(affinity=affinity, compute_full_tree=compute_full_tree,
                             connectivity=connectivity, linkage=linkage, memory=memory, n_clusters=n_clusters,
                             pooling_func=pooling_func)
