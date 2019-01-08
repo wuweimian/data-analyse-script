@@ -36,8 +36,7 @@ algorithm: kmeans的实现算法，有：‘auto’, ‘full’, ‘elkan’, 其中 'full’表示
 """
 def kmeans_cluster(x_col,algorithm,copy_x,init,max_iter,n_clusters,n_init,n_jobs,
                    precompute_distances,random_state,tol,verbose):
-    col = x_col
-    df = G_ENV.get_features_data(col)
+    df = G_ENV.get_features_data(x_col)
     train = np.array(df)
 
     # None类型转换
@@ -58,7 +57,8 @@ def kmeans_cluster(x_col,algorithm,copy_x,init,max_iter,n_clusters,n_init,n_jobs
     result_str=""
     result_str +="Calinski-Harabasz分数|轮廓系数\n"
     result_str +="{}|{}\n".format(ch,ms)
-
+    # 持久化
+    report.saveskmd(G_ENV.get_result_dir(), "模型实例", mb_kmeans)
     #生成报告
     report.savestrtb(G_ENV.get_result_dir(), "Kmeans模型评估结果", result_str)
     report.createhtml("运行结果", G_ENV.get_result_dir())
