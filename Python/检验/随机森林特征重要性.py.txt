@@ -1,0 +1,44 @@
+# -*- coding: utf-8 -*-
+import pandas as pd
+import numpy as np
+import report
+from sklearn.ensemble import RandomForestRegressor
+import genvs as GENV
+G_ENV = GENV.GENVS()
+
+def pretty_print_linear(coefs, names = None, sort = False):
+
+    lst = zip(names,coefs )
+    if sort:
+        lst = sorted(lst,  key = lambda x:-np.abs(x[1]))
+    return "\n".join("%s|%s" % (name,round(coef, 3))
+                                   for name, coef in lst)
+
+"""
+随机森林特征重要性调用函数
+"""
+def random_feature(x_col,y_col):
+    col = x_col + "|" + y_col
+    df = G_ENV.get_features_data(col)
+    col_list = x_col.split("|")
+    x = (df[col_list]).values
+    y = df[y_col].values
+
+    rf = RandomForestRegressor()
+    rf.fit(x, y)
+    result_str=""
+    result_str +="特征变量|特征重要性\n"
+    result_str +="{}".format(pretty_print_linear(rf.feature_importances_,col_list,True))
+    # 保存前五行数据预览
+    report.savestrtb(G_ENV.get_result_dir(), "随机森林特征重要性结果", result_str)
+    # 生成报告
+    report.createhtml("随机森林特征重要性结果", G_ENV.get_result_dir())
+            
+if __name__ == '__main__':
+    G_ENV.baseDir="C:/Users/Tim/Desktop/automodel/V2/data"
+    G_ENV.projectId = "projectId"
+    G_ENV.jobId="jobId"
+    G_ENV.instanceId="instanceId"
+    x_col = "3g_liuliang|total_liuliang|2g_liuliang|country_liuliang|mangshi_liuliang|arpu|xianshi_liuliang|province_liuliang"
+    y_col="flag"
+    random_feature(x_col,y_col)
