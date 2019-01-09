@@ -108,5 +108,4 @@ def arima_data_fenxi(date_col,flag_col):
     # p£¬q²ÎÊý
     get_pq_pacf(ts_log_diff)
 
-if __name__ == '__main__':
-    arima_data_fenxi('Month','#Passengers')
+
