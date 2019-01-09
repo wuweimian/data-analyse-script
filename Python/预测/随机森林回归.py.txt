@@ -1,0 +1,110 @@
+# -*- coding: utf-8 -*-
+
+
+import genvs as GENV
+
+G_ENV = GENV.GENVS()
+
+import pandas as pd
+import sklearn.metrics
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import Lasso, Ridge
+from sklearn.ensemble import RandomForestRegressor, ExtraTreesRegressor, GradientBoostingRegressor
+import report
+
+
+def show_data_head(des_dir, n=10):
+    df = G_ENV.get_features_data_all().head(n)
+    report.savedataframe(des_dir, "特征数据预览", df)
+
+
+# 以上为模板
+################################################################################################
+def model_evaluate(model, x_train, x_test, y_train, y_test):
+    y_test_pred = model.predict(x_test)
+    y_train_pred = model.predict(x_train)
+    mse = np.average((y_test_pred - np.array(y_test)) ** 2)
+    rmse = np.sqrt(mse)
+    scores = model.score(x_test, y_test)
+
+    result_str = ""
+    result_str = "均方误差|均方根误差|R平方\n"
+    result_str +="{:.2f}|{:.2f}|{:.2f}\n".format(mse,rmse,scores)
+
+    # 保存结果
+    report.savestrtb(G_ENV.get_result_dir(), "随机森林回归评估结果", result_str)
+
+
+def random_regression(x_col, y_col, train_size,bootstrap,criterion,max_depth,max_features,
+                      max_leaf_nodes,min_impurity_split,min_samples_leaf,min_samples_split,
+                      n_estimators,n_jobs,oob_score,random_state,verbose,warm_start):
+    col = x_col + "|" + y_col
+    df = G_ENV.get_features_data(col)
+    df = df.dropna()
+    x = (df.iloc[:, 0:len(df.columns) - 1]).values
+    y = (df.iloc[:, len(df.columns) - 1]).values
+    x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=train_size, random_state=0)
+
+    if bootstrap == 'True':
+        bootstrap = True
+    if bootstrap == 'False':
+        bootstrap = False
+    if max_leaf_nodes == 'None':
+        max_leaf_nodes = None
+    if min_impurity_split == 'None':
+        min_impurity_split = None
+    if oob_score == 'True':
+        oob_score = True
+    if oob_score == 'False':
+        oob_score = False
+    if random_state == 'None':
+        random_state = None
+    if warm_start == 'True':
+        warm_start = True
+    if warm_start == 'False':
+        warm_start = False
+    # 构建模型
+    random_model = RandomForestRegressor(bootstrap=bootstrap, criterion=criterion, max_depth=max_depth,
+           max_features=max_features, max_leaf_nodes=max_leaf_nodes,min_impurity_split=min_impurity_split,
+           min_samples_leaf=min_samples_leaf, min_samples_split=min_samples_split,
+           n_estimators=n_estimators, n_jobs=n_jobs,oob_score=oob_score, random_state=random_state,
+           verbose=verbose, warm_start=warm_start)
+
+    model = random_model.fit(x_train, y_train)
+    # 持久化
+    report.saveskmd(G_ENV.get_result_dir(), "模型实例", model)
+
+    model_evaluate(model, x_train, x_test, y_train, y_test)
+    # 生成报告
+    report.createhtml("运行结果", G_ENV.get_result_dir())
+
+
+########################################################################################
+# 以下是模板
+if (__name__ == '__main__') & ('XXJOB' not in globals()):
+    G_ENV.baseDir = "C:/Users/Tim/Desktop/automodel/V2/data"
+    G_ENV.projectId = "projectId"
+    G_ENV.jobId = "jobId"
+    G_ENV.instanceId = "instanceId"
+    x_col = "2g_liuliang|total_liuliang|3g_liuliang|country_liuliang|mangshi_liuliang|xianshi_liuliang|province_liuliang"
+    train_size = 0.7
+    bootstrap = True
+    criterion = 'mse'
+    max_depth = 100
+    max_features = 'auto'
+    max_leaf_nodes = None
+    min_impurity_decrease = 0.0
+    min_impurity_split = None
+    min_samples_leaf = 1
+    min_samples_split = 2
+    min_weight_fraction_leaf = 0.0
+    n_estimators = 10
+    n_jobs = 1
+    oob_score = False
+    random_state = None
+    verbose = 0
+    warm_start = False
+    random_regression(x_col, "arpu", train_size,bootstrap,criterion,max_depth,max_features,
+                      max_leaf_nodes,min_impurity_split,min_samples_leaf,min_samples_split,
+                      n_estimators,n_jobs,oob_score,random_state,verbose,warm_start)
