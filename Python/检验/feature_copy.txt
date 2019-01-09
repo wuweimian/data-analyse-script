@@ -6,6 +6,7 @@ import pandas as pd
 import report
 import file_operate
 import threading
+import os, time
 
 lock=threading.Lock()
 def show_data_head(des_dir, n=10):
@@ -26,12 +27,14 @@ def copydf(feature_df, source_df, feature_key, source_key, source_col, new_col):
 
 
 def copy(feature_key, source_key, source_col, new_col, sep='|'):
-    lock.acquire()
+
     feature_dir = G_ENV.baseDir + "/" + G_ENV.projectId + "/work_file/"
     feature_filename = "features.csv"
     source_dir = G_ENV.baseDir + "/" + G_ENV.projectId + "/source_file/"
     source_filename = G_ENV.tmpdir
-
+    # 锁
+    time.sleep(30)
+    lock.acquire()
     source_df = file_operate.read(source_dir, source_filename, sep)
     if file_operate.exists(feature_dir + feature_filename):
         feature_df = file_operate.read(feature_dir, feature_filename, ',')
@@ -46,14 +49,16 @@ def copy(feature_key, source_key, source_col, new_col, sep='|'):
         res.columns = coln
 
     file_operate.write(res, feature_dir, feature_filename, ',')
+    # 释放锁
+    lock.release()
 
     show_data_head(G_ENV.get_result_dir("运行结果"), n=10)
     # 生成报告
     report.createhtml("运行结果", G_ENV.get_result_dir("运行结果"))
-    lock.release()
+
 
 if (__name__ == '__main__') & ('XXJOB' not in globals()):
-    G_ENV.baseDir = "C:/Users/Tim/Desktop/automodel/script/V2/data"
+    G_ENV.baseDir = "C:/Users/Tim/Desktop/automodel/V2/data"
     G_ENV.projectId = "projectId"
     G_ENV.jobId = "jobId"
     G_ENV.instanceId = "instanceId"
