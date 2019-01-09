@@ -85,8 +85,8 @@ flag_col：为分析的标签列
 """
 def arima_data_fenxi(date_col,flag_col):
     col = date_col + "|" + flag_col
-    #data = G_ENV.get_features_data(col)
-    data = pd.read_csv("AirPassengers.txt")
+    data = G_ENV.get_features_data(col)
+    #data = pd.read_csv("AirPassengers.txt")
     col_list = col.split('|')
     data = data[col_list]
     data[date_col] = pd.to_datetime(data[date_col])
