@@ -1,0 +1,81 @@
+# -*- coding: utf-8 -*-
+
+
+import genvs as GENV
+
+G_ENV = GENV.GENVS()
+
+import pandas as pd
+import sklearn.metrics
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsRegressor
+import report
+
+
+def show_data_head(des_dir, n=10):
+    df = G_ENV.get_features_data_all().head(n)
+    report.savedataframe(des_dir, "特征数据预览", df)
+
+
+# 以上为模板
+################################################################################################
+def model_evaluate(model, x_train, x_test, y_train, y_test):
+    y_test_pred = model.predict(x_test)
+    y_train_pred = model.predict(x_train)
+    mse = np.average((y_test_pred - np.array(y_test)) ** 2)
+    rmse = np.sqrt(mse)
+    scores = model.score(x_test, y_test)
+
+    result_str = ""
+    result_str = "均方误差|均方根误差|R平方\n"
+    result_str +="{:.2f}|{:.2f}|{:.2f}\n".format(mse,rmse,scores)
+
+    # 保存结果
+    report.savestrtb(G_ENV.get_result_dir(), "KNN回归评估结果", result_str)
+
+
+def knn_regression(x_col, y_col, train_size,algorithm,leaf_size,metric,
+                     metric_params,n_jobs,n_neighbors,p,weights):
+    col = x_col + "|" + y_col
+    df = G_ENV.get_features_data(col)
+    df = df.dropna()
+    x = (df.iloc[:, 0:len(df.columns) - 1]).values
+    y = (df.iloc[:, len(df.columns) - 1]).values
+    x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=train_size, random_state=0)
+
+    if metric_params == 'None':
+        metric_params = None
+
+    # 构建模型
+    knn_model = KNeighborsRegressor(algorithm=algorithm, leaf_size=leaf_size, metric=metric,
+          metric_params=metric_params, n_jobs=n_jobs, n_neighbors=n_neighbors, p=p,
+          weights=weights)
+    model = knn_model.fit(x_train, y_train)
+    # 持久化
+    report.saveskmd(G_ENV.get_result_dir(), "模型实例", model)
+
+    model_evaluate(model, x_train, x_test, y_train, y_test)
+    # 生成报告
+    report.createhtml("运行结果", G_ENV.get_result_dir())
+
+
+########################################################################################
+# 以下是模板
+if (__name__ == '__main__') & ('XXJOB' not in globals()):
+    G_ENV.baseDir = "C:/Users/Tim/Desktop/automodel/V2/data"
+    G_ENV.projectId = "projectId"
+    G_ENV.jobId = "jobId"
+    G_ENV.instanceId = "instanceId"
+    x_col = "2g_liuliang|total_liuliang|3g_liuliang|country_liuliang|mangshi_liuliang|xianshi_liuliang|province_liuliang"
+    train_size = 0.7
+    algorithm = 'auto'
+    leaf_size = 30
+    metric = 'minkowski'
+    metric_params = None
+    n_jobs = 1
+    n_neighbors = 5
+    p = 2
+    weights = 'uniform'
+    knn_regression(x_col, "arpu", train_size,algorithm,leaf_size,metric,
+                     metric_params,n_jobs,n_neighbors,p,weights)
