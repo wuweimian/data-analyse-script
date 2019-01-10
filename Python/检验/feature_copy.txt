@@ -5,10 +5,26 @@ G_ENV = GENV.GENVS()
 import pandas as pd
 import report
 import file_operate
-import threading
 import os, time
 
-lock=threading.Lock()
+
+import win32con, win32file, pywintypes
+
+LOCK_EX = win32con.LOCKFILE_EXCLUSIVE_LOCK
+LOCK_SH = 0  # The default value
+LOCK_NB = win32con.LOCKFILE_FAIL_IMMEDIATELY
+__overlapped = pywintypes.OVERLAPPED()
+
+
+def lock(file, flags):
+    hfile = win32file._get_osfhandle(file.fileno())
+    win32file.LockFileEx(hfile, flags, 0, 0xffff0000, __overlapped)
+
+
+def unlock(file):
+    hfile = win32file._get_osfhandle(file.fileno())
+    win32file.UnlockFileEx(hfile, 0, 0xffff0000, __overlapped)
+
 def show_data_head(des_dir, n=10):
     df = G_ENV.get_features_data_all().head(n)
     report.savedataframe(des_dir, "特征数据预览", df)
@@ -32,9 +48,8 @@ def copy(feature_key, source_key, source_col, new_col, sep='|'):
     feature_filename = "features.csv"
     source_dir = G_ENV.baseDir + "/" + G_ENV.projectId + "/source_file/"
     source_filename = G_ENV.tmpdir
-    # 锁
-    time.sleep(30)
-    lock.acquire()
+
+    f = open(feature_dir+feature_filename, "a+")
     source_df = file_operate.read(source_dir, source_filename, sep)
     if file_operate.exists(feature_dir + feature_filename):
         feature_df = file_operate.read(feature_dir, feature_filename, ',')
@@ -48,9 +63,10 @@ def copy(feature_key, source_key, source_col, new_col, sep='|'):
         coln.append(source_key)
         res.columns = coln
 
+    time.sleep(10)
+    lock(f, LOCK_EX)
     file_operate.write(res, feature_dir, feature_filename, ',')
-    # 释放锁
-    lock.release()
+    unlock(f)
 
     show_data_head(G_ENV.get_result_dir("运行结果"), n=10)
     # 生成报告
