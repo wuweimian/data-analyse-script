@@ -24,7 +24,7 @@ def model_result_fenix(phone,x_col,y_col):
 
 
     result = {
-        'phone': df['phone'].values,
+        'phone': df[phone].values,
         'flag': df[y_col].values,
         'not_lost_rate': probability_frame.not_lost_rate.values,
         'lost_rate': probability_frame.lost_rate.values
@@ -38,7 +38,7 @@ def model_result_fenix(phone,x_col,y_col):
     # 分层计算
     result_str=""
     rate = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
-    print("分层|总数|负样本|正样本|命中率|覆盖度|提升度")
+    print("分层|总数|负样本|正样本|命中率|覆盖度|提升度\n")
     result_str+="分层|总数|负样本|正样本|命中率|覆盖度|提升度\n"
     for i in rate:
         # 获取分层切片数
@@ -59,13 +59,13 @@ def model_result_fenix(phone,x_col,y_col):
         pos_all_rate = float('%.2f' % (data_all_1 / (data_all_qiepian.count()[0]) * 100))
 
         #提升度
-        upgrading = pos_rate / pos_all_rate
+        upgrading = float('%.2f' % (pos_rate / pos_all_rate))
         pos_rate = str(pos_rate)+ "%"
-        print("%s|%d|%d|%d|%s|%s|%s" % (per, int(data_sum), data_0, data_1, pos_rate, cover_rate,upgrading))
+        #print("%s|%d|%d|%d|%s|%s|%s\n" % (per, int(data_sum), data_0, data_1, pos_rate, cover_rate,upgrading))
         result_str +="%s|%d|%d|%d|%s|%s|%s\n" % (per, int(data_sum), data_0, data_1, pos_rate, cover_rate,upgrading)
 
     # 保存结果
-    report.savestrmd(G_ENV.get_result_dir(), "模型提升度", result_str)
+    report.savestrtb(G_ENV.get_result_dir(), "模型提升度", result_str)
 if (__name__ == '__main__') & ('XXJOB' not in globals()):
     G_ENV.baseDir="C:/Users/Tim/Desktop/automodel/V2/data"
     G_ENV.projectId = "projectId"
