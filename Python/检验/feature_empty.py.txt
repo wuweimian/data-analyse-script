@@ -1,0 +1,23 @@
+import genvs as GENV
+G_ENV = GENV.GENVS()
+
+import pandas as pd
+import report
+
+def empty():
+    feature_dir = G_ENV.baseDir+"/"+G_ENV.projectId+"/work_file/features.csv"
+    import os
+    os.remove(feature_dir)
+    report.savestrmd(G_ENV.get_result_dir("运行结果"), "特征表数据已清空", G_ENV.projectId+"/work_file/features.csv")
+    #生成报告
+    report.createhtml("运行结果", G_ENV.get_result_dir("运行结果"))
+
+if (__name__ == '__main__') & ('XXJOB' not in globals()):
+    G_ENV.baseDir="C:/Users/user/Desktop/automodel/script/V2/data"
+    G_ENV.projectId = "projectId"
+    G_ENV.jobId="jobId"
+    G_ENV.instanceId="instanceId"
+
+    #source_filename
+    G_ENV.tmpdir = "a.txt" 
+    empty()
