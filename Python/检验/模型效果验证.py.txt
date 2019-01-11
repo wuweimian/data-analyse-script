@@ -7,7 +7,7 @@ import pandas as pd
 from sklearn.externals import joblib
 import report
 
-def model_result_fenix(phone,x_col,y_col,projectId,jobId):
+def model_result_fenix(phone,x_col,y_col,projectId,jobId,instanceId):
     # 读取文件信息
     col = phone + "|" + x_col + "|" + y_col
     df = G_ENV.get_features_data(col)
@@ -17,9 +17,11 @@ def model_result_fenix(phone,x_col,y_col,projectId,jobId):
     # 取前特征变量
     x = (df[col_list]).values
     #加载模型，预测结果
-    G_ENV.projectId = projectId
-    G_ENV.jobId = jobId
-    model = joblib.load(G_ENV.get_result_dir(),"模型实例")
+    # G_ENV.projectId = projectId
+    # G_ENV.jobId = jobId
+    # G_ENV.instanceId = instanceId
+    path = G_ENV.baseDir+"/"+projectId+"/"+jobId+"/"+instanceId+"/运行结果/resource/"+instanceId+".模型实例.pkl"
+    model = joblib.load(path)
     #model = joblib.load("F://20190107102929.模型实例.pkl")
     probability = model.predict_proba(x)
     probability_frame = pd.DataFrame(probability, columns=['not_lost_rate', 'lost_rate'])
@@ -40,7 +42,7 @@ def model_result_fenix(phone,x_col,y_col,projectId,jobId):
     # 分层计算
     result_str=""
     rate = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
-    print("分层|总数|负样本|正样本|命中率|覆盖度|提升度\n")
+    #print("分层|总数|负样本|正样本|命中率|覆盖度|提升度\n")
     result_str+="分层|总数|负样本|正样本|命中率|覆盖度|提升度\n"
     for i in rate:
         # 获取分层切片数
@@ -75,4 +77,8 @@ if (__name__ == '__main__') & ('XXJOB' not in globals()):
     G_ENV.instanceId="instanceId"
     x_col = "2g_liuliang|total_liuliang|3g_liuliang|country_liuliang|mangshi_liuliang|arpu|xianshi_liuliang|province_liuliang"
     phone="phone"
-    model_result_fenix(phone,x_col,"flag")
+    projectId="projectId"
+    jobId="jobId"
+    instanceId = "20190111105246"
+
+    model_result_fenix(phone,x_col,"flag",projectId,jobId,instanceId)
