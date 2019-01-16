@@ -66,21 +66,20 @@ def dataQualityCheck(col):
         std = df[i].std()
         # 异常值
         abnormal = avg + 3 * std
-
         # 超上限比例
-        data_yichang_up_num = df[df[i] > df].count()[0]
+        data_yichang_up_num = df[df[i] > abnormal].count()[0]
         up_rate = data_yichang_up_num / line_size
-
         # 超下限比例
         df.sort_values(by=[i])
         a = df[i]
         persent_num = a.quantile(0.01)
         data_yichang_down_num = df[df[i] < persent_num].count()[0]
         down_rate = data_yichang_down_num / line_size
+
         result_str += "{}|{}|{}|{}|{:.2f}|".format(num, i, line_size, NaN_num, NaN_rate)
         result_str += "{}|{:.2f}|{}|{:.2f}|".format(uniques, avg, min_, per_num_25)
         result_str += "{:.2f}|{:.2f}|{:.2f}|{:.2f}|{:.2f}|{:.2f}|{:.2f}|".format(per_num_1,per_num_5,per_num_10,per_num_50, per_num_75, per_num_95,per_num_99)
-        result_str += "{}|{:.2f}|{:.4f}|{:.4f}|{:.2f}\n".format(max_, std, up_rate,down_rate,abnormal)
+        result_str += "{:.2f}|{:.2f}|{:.4f}|{:.4f}|{:.2f}\n".format(max_, std, up_rate,down_rate,abnormal)
 
     # 保存结果
     des_dir= G_ENV.get_result_dir("运行结果")
