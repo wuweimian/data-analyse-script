@@ -1,0 +1,39 @@
+# -*- coding: utf-8 -*-
+
+
+import genvs as GENV
+G_ENV = GENV.GENVS()
+
+import pandas as pd
+from pandas import Series
+import report
+
+
+def show_data_head(des_dir, n=10):
+    df = G_ENV.get_features_data_all().head(n)
+    report.savedataframe(des_dir, "特征数据预览", df)
+
+# 以上为模板
+################################################################################################
+def categores2int(col):
+    df = G_ENV.get_features_data_all()
+    col_list = col.split('|')
+    for c in col_list:
+        df[c]=pd.Categorical(pd.Series(df[c])).codes
+    G_ENV.update_features(df)
+    
+    show_data_head(G_ENV.get_result_dir("运行结果"), n=10)
+    #生成报告
+    report.createhtml("运行结果", G_ENV.get_result_dir("运行结果"))
+
+
+########################################################################################
+# 以下是模板
+if (__name__ == '__main__') & ('XXJOB' not in globals()):
+    G_ENV.baseDir="C:/Users/user/Desktop/automodel/script/V2/data"
+    G_ENV.projectId = "projectId"
+    G_ENV.jobId="jobId"
+    G_ENV.instanceId="instanceId"
+
+
+    categores2int("a_age_1")
