@@ -1,0 +1,89 @@
+# -*- coding: utf-8 -*-
+
+
+import genvs as GENV
+G_ENV = GENV.GENVS()
+import pandas as pd
+from sklearn.externals import joblib
+import report
+import os
+
+def out_result_data(phone,x_col,rate,projectId):
+    # 读取文件信息
+    col = phone + "|" + x_col
+    df = G_ENV.get_features_data(col)
+    col_list = x_col.split('|')
+    df = df.dropna()
+
+    # 取前特征变量
+    x = (df[col_list]).values
+    #加载模型，预测结果
+    #jobId = projectId.split("/")[1]
+    dir_file = G_ENV.baseDir+"/"+projectId+"/运行结果/resource/"
+    model_path = dir_file
+    for filename in os.listdir(dir_file):
+        if "模型实例" in filename:
+            model_path+=filename
+    print(model_path)
+    #path = G_ENV.baseDir+"/"+projectId+"/运行结果/resource/"+jobId+".模型实例.pkl"
+    path=model_path
+    model = joblib.load(path)
+    probability = model.predict_proba(x)
+    probability_frame = pd.DataFrame(probability, columns=['not_lost_rate', 'lost_rate'])
+
+    result = {
+        'phone': df[phone].values,
+        'not_lost_rate': probability_frame.not_lost_rate.values,
+        'lost_rate': probability_frame.lost_rate.values
+    }
+
+    result_data = pd.DataFrame(result, columns=['phone', 'not_lost_rate', 'lost_rate']
+                                ).sort_index(by='lost_rate', ascending=False)
+
+    # 模型输出前rate%数据以及5%的随机数据
+    index_40_per = round(result_data['phone'].index[-1] * rate)
+    index_5_per = round(index_40_per * 0.05)
+    a = result_data[0:int(index_40_per)]
+    b = result_data[-int(index_5_per):-1]
+    c = result_data.sort_values(by='lost_rate', ascending=False)
+    # 按照概率排名
+    result_data = result_data.sort_values(by='lost_rate', ascending=False)
+    j = []
+    for i in range(1, c.shape[0] + 1):
+        j.append(i)
+    c['rank'] = j
+    k = []
+    for i in range(1, a.shape[0] + 1):
+        k.append(i)
+    a['rank'] = k
+    m = []
+    for i in range(1, b.shape[0] + 1):
+        m.append(i)
+    b['rank'] = m
+
+    out = ['phone', 'lost_rate', 'rank']
+    c = c[out]
+    a = a[out]
+    b = b[out]
+
+    a.to_csv(dir_file+'model_num_top_per.txt', index=False, sep='|')
+    b.to_csv(dir_file+'random_num_5_per.txt', index=False, sep='|')
+    c.to_csv(dir_file+'out_predict_result.txt', index=False, sep='|')
+
+
+    # 保存结果
+    report.savedataframe(G_ENV.get_result_dir(), "模型预测数据示例", c.head())
+    # 生成报告
+    report.createhtml("模型预测数据示例", G_ENV.get_result_dir())
+
+if (__name__ == '__main__') & ('XXJOB' not in globals()):
+    G_ENV.baseDir="C:/Users/Tim/Desktop/automodel/V2/data"
+    G_ENV.projectId = "projectId"
+    G_ENV.jobId="jobId"
+    G_ENV.instanceId="instanceId"
+    x_col = "2g_liuliang|total_liuliang|3g_liuliang|country_liuliang|mangshi_liuliang|arpu|xianshi_liuliang|province_liuliang"
+    phone="phone"
+    rate=0.4
+    projectId="201901102045/201901102048"
+
+    out_result_data(phone,x_col,rate,projectId)
