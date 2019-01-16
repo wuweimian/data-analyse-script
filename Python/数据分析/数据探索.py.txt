@@ -1,0 +1,168 @@
+# -*- coding: utf-8 -*-
+
+
+import genvs as GENV
+G_ENV = GENV.GENVS()
+
+import pandas as pd
+import numpy as np
+from pandas import Series
+import report
+from sklearn.cluster import KMeans
+import math
+
+
+
+def show_data_head(des_dir, n=10):
+    df = G_ENV.get_features_data_all().head(n)
+    report.savedataframe(des_dir, "特征数据预览", df)
+
+"""
+col：传入特征列值，以|分隔
+flag：为标签列值，因为要统计正负样本的比例
+"""
+def dataExploer(x_col,flag):
+	##########################################################################
+    col = x_col + "|" + flag
+    df = G_ENV.get_features_data(col)
+    df = df.fillna(df.mean)
+    col_list = col.split('|')
+    data_bin = df[col_list]
+
+    ##########################################################################
+
+    # 数据分箱指标探索
+    iv_dict = {}
+    result_str = ""
+    result_str += "分箱|特征变量|负样本数|正样本数|箱内样本数|负样本占比|正样本占比|正样本总体占比|箱内占比|WOE|IV\n"
+    # 基于聚类分析的方法，对列进行分箱
+    for i in col_list:
+        bin_list = []
+        a = data_bin[i].copy()
+        kmodel = KMeans(n_clusters=10, n_jobs=4)
+        kmodel.fit(a.reshape((len(a), 1)))
+        c = pd.DataFrame(kmodel.cluster_centers_)
+
+        # 获取分箱边界值
+        data_avg = a.mean()
+        data_std = a.std()
+        data_yichang = data_avg + 3 * data_std
+
+        for j in np.array(c.sort_values(by=[0])):
+            if j < data_yichang:
+                bin_list.append("%.2f" % j)
+
+        if float(bin_list[0]) <= a.min():
+            bin_list = bin_list + [str(data_yichang)]
+        else:
+            bin_list = [str(a.min())] + bin_list + [str(data_yichang)]
+
+        # 计算正负样本数
+        sample_0 = data_bin[(data_bin[i] >= float(bin_list[0])) & (data_bin[i] <= float(bin_list[-1])) & (
+                    data_bin[flag] == 0)].count()[0]
+        sample_1 = data_bin[(data_bin[i] >= float(bin_list[0])) & (data_bin[i] <= float(bin_list[-1])) & (
+                    data_bin[flag] == 1)].count()[0]
+        sample_all = sample_0 + sample_1
+
+        for index, item in enumerate(bin_list):
+            bin_list[index] = eval(item)
+
+
+        print("\n")
+        print("{}".format(i))
+        print("分箱|{}|负样本数|正样本数|箱内样本数|负样本占比|正样本占比|正样本总体占比|箱内占比|WOE|IV".format(i))
+
+        #result_str +="{}".format(i)
+        result_str +="分箱|{}|负样本数|正样本数|箱内样本数|负样本占比|正样本占比|正样本总体占比|箱内占比|WOE|IV\n".format(i)
+        iv_sum = 0
+
+        for m in range(len(bin_list) - 1):
+            if m == 0:
+                bin_0_num = data_bin[
+                    (data_bin[i] >= bin_list[m]) & (data_bin[i] <= bin_list[m + 1]) & (data_bin[flag] == 0)].count()[
+                    0]
+                bin_1_num = data_bin[
+                    (data_bin[i] >= bin_list[m]) & (data_bin[i] <= bin_list[m + 1]) & (data_bin[flag] == 1)].count()[
+                    0]
+                bin_sample_num = bin_0_num + bin_1_num
+                bin_0_rate = bin_0_num / sample_0
+                bin_1_rate = bin_1_num / sample_1
+                bin_1_sample_all_rate = sample_1 / sample_all
+                in_bin_rate = bin_1_num / bin_sample_num
+                if (bin_0_num == 0) or (bin_1_num == 0):
+                    WOE = 0.0
+                    IV = 0.0
+                else:
+                    WOE = math.log(bin_1_rate / bin_0_rate, math.e)
+                    IV = (bin_1_rate - bin_0_rate) * WOE
+                    iv_sum += IV
+                print('{}|'.format(m + 1), end='')
+
+                print('[%.2f, %.2f]|' % (bin_list[m], bin_list[m + 1]), end='')
+                print('{}|{}|{}|{:.2%}|{:.2%}|{:.2%}|{:.2%}|{:.4}|{:.4}'.format(bin_0_num, bin_1_num, bin_sample_num, bin_0_rate, bin_1_rate,
+                                                          bin_1_sample_all_rate, in_bin_rate, WOE, IV))
+                result_str += "\n"
+                result_str += '{}|'.format(m + 1)
+                result_str +='[%.2f, %.2f]|' % (bin_list[m], bin_list[m + 1])
+                result_str +='{}|{}|{}|{:.2%}|{:.2%}|{:.2%}|{:.2%}|{:.4}|{:.4}'.format(bin_0_num, bin_1_num, bin_sample_num, bin_0_rate, bin_1_rate,
+                                                          bin_1_sample_all_rate, in_bin_rate, WOE, IV)
+            else:
+                bin_0_num = data_bin[
+                    (data_bin[i] > bin_list[m]) & (data_bin[i] <= bin_list[m + 1]) & (data_bin[flag] == 0)].count()[0]
+                bin_1_num = data_bin[
+                    (data_bin[i] > bin_list[m]) & (data_bin[i] <= bin_list[m + 1]) & (data_bin[flag] == 1)].count()[0]
+                bin_sample_num = bin_0_num + bin_1_num
+                bin_0_rate = bin_0_num / sample_0
+                bin_1_rate = bin_1_num / sample_1
+                bin_1_sample_all_rate = sample_1 / sample_all
+                in_bin_rate = bin_1_num / bin_sample_num
+                if (bin_0_num == 0) or (bin_1_num == 0):
+                    WOE = 0.0
+                    IV = 0.0
+                else:
+                    WOE = math.log(bin_1_rate / bin_0_rate, math.e)
+                    IV = (bin_1_rate - bin_0_rate) * WOE
+                    iv_sum += IV
+                print('{}|'.format(m + 1), end='')
+                print('[%.2f, %.2f]|' % (bin_list[m], bin_list[m + 1]), end='')
+                print('{}|{}|{}|{:.2%}|{:.2%}|{:.2%}|{:.2%}|{:.4}|{:.4}'.format(bin_0_num, bin_1_num, bin_sample_num, bin_0_rate, bin_1_rate,
+                                                          bin_1_sample_all_rate, in_bin_rate, WOE, IV))
+                result_str += "\n"
+                result_str += '{}|'.format(m + 1)
+                result_str +='[%.2f, %.2f]|' % (bin_list[m], bin_list[m + 1])
+                result_str +='{}|{}|{}|{:.2%}|{:.2%}|{:.2%}|{:.2%}|{:.4}|{:.4}\n'.format(bin_0_num, bin_1_num, bin_sample_num, bin_0_rate, bin_1_rate,
+                                                          bin_1_sample_all_rate, in_bin_rate, WOE, IV)
+        print('总计||||||||||{:.4}'.format(float(iv_sum)))
+        result_str +='总计| | | | | | | | | |{:.4}\n'.format(float(iv_sum))
+
+        result_str+="\n"
+        iv_dict[i] = iv_sum
+
+    result_str2="变量名|IV值|排名\n"
+    i=1
+    item = iv_dict.items()
+    backitems = [[v[1], v[0]] for v in item]
+    backitems.sort(reverse=True)
+    print(backitems)
+    for backs in backitems:
+        result_str2 += "{}|{}|{}\n".format(backs[1], backs[0], i)
+        i += 1
+    # for key, value in iv_dict.items():
+    #     result_str2+="{}|{}|{}\n".format(key,value,i)
+    #     i+=1
+    #     #print(key, value)
+    # 保存结果
+    des_dir= G_ENV.get_result_dir("运行结果")
+    report.savestrtb(des_dir, "分箱指标排名", result_str2)
+    report.savestrtb(des_dir, "分箱指标探索明细", result_str)
+
+    report.createhtml("运行结果", des_dir)
+
+
+if (__name__ == '__main__') & ('XXJOB' not in globals()):
+    G_ENV.baseDir="C:/Users/Tim/Desktop/automodel/V2/data"
+    G_ENV.projectId = "projectId"
+    G_ENV.jobId="jobId"
+    G_ENV.instanceId="instanceId"
+
+    dataExploer("2g_liuliang|total_liuliang|3g_liuliang|country_liuliang|mangshi_liuliang|arpu|xianshi_liuliang|province_liuliang","flag")
