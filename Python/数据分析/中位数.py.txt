@@ -47,12 +47,3 @@ def mid_inserp_main(col,flag):
     G_ENV.update_features(data)
     # 生成报告
     report.createhtml("中位数插值结果", G_ENV.get_result_dir())
-
-if __name__ == '__main__':
-    G_ENV.baseDir="C:/Users/Tim/Desktop/automodel/V2/data"
-    G_ENV.projectId = "projectId"
-    G_ENV.jobId="jobId"
-    G_ENV.instanceId="instanceId"
-    x_col = "arpu|2g_liuliang|total_liuliang|3g_liuliang"
-    flag="否"
-    mid_inserp_main(x_col,flag)
