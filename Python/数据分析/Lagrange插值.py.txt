@@ -19,23 +19,38 @@ def ployinterp_column(s, n, k=5):
 """
 def lagrange_insert_main(col,flag):
     # 获取数据
-    data = G_ENV.get_features_data(col)
+    data = G_ENV.get_features_data_all()
+    columns_list = col.split("|")
+    pd_empty = pd.DataFrame(columns=data.columns)
     #插入拉格朗日值
     if flag == "是":
-        for i in data.columns:
+        for i in columns_list:
+            nans = pd.isnull(data[i]).tolist()
+            index = [i for i, x in enumerate(nans) if x == True]
             for j in range(len(data)):
                 if(data[i].isnull())[j]:
                     data[i][j] = ployinterp_column(data[i],j)
+            pd_empty = pd_empty.append(data.loc[index])
     else:
-        for i in data.columns:
+        for i in columns_list:
+            nans = pd.isnull(data[i]).tolist()
+            index = [i for i, x in enumerate(nans) if x == True]
+            new_col = i + "_拉格朗日插值"
+            data[new_col] = data[i]
             for j in range(len(data)):
                 if(data[i].isnull())[j]:
-                    new_col = i + "_拉格朗日插值"
-                    data[new_col] = data[i]
                     data[new_col][j] = ployinterp_column(data[new_col],j)
+                    print(data[new_col][j])
+            pd_empty = pd_empty.append(data.loc[index])
+
+    pd_empty = pd_empty.reset_index()
+    pd_empty = pd_empty.drop_duplicates(subset="index", keep='last', inplace=False)
+    # pd_empty = pd_empty.drop(['index'],axis=1)
+    pd_empty = pd_empty.set_index("index")
     # 保存前五行数据预览
-    report.savedataframe(G_ENV.get_result_dir(), "拉格朗日插值结果", data.head())
+    report.savedataframe(G_ENV.get_result_dir(), "拉格朗日插值结果", pd_empty.sort_index().head())
     # 保存数据
     G_ENV.update_features(data)
     # 生成报告
     report.createhtml("拉格朗日插值结果", G_ENV.get_result_dir())
+
