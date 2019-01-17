@@ -1,0 +1,46 @@
+# -*- coding: utf-8 -*-
+import pandas as pd
+import numpy as np
+import report
+import genvs as GENV
+G_ENV = GENV.GENVS()
+
+
+"""
+中位数插值
+"""
+def mid_interp(x,n=0):
+    mid = x.quantile(0.5)
+    x = x.fillna(mid)
+    return x
+
+"""
+中位数插值调用函数
+"""
+def mid_inserp_main(col,flag):
+    data = G_ENV.get_features_data(col)
+    if flag=="是":
+        for i in data.columns:
+            data[i] = mid_interp(data[i])
+    else:
+        for i in data.columns:
+            nans = pd.isnull(data[i]).tolist()
+            if True in nans:
+                new_col = i + "_中位数插值"
+                data[new_col] = mid_interp(data[i])
+
+    # 保存前五行数据预览
+    report.savedataframe(G_ENV.get_result_dir(), "中位数插值结果", data.head())
+    # 保存数据
+    G_ENV.update_features(data)
+    # 生成报告
+    report.createhtml("中位数插值结果", G_ENV.get_result_dir())
+
+if __name__ == '__main__':
+    G_ENV.baseDir="C:/Users/Tim/Desktop/automodel/V2/data"
+    G_ENV.projectId = "projectId"
+    G_ENV.jobId="jobId"
+    G_ENV.instanceId="instanceId"
+    x_col = "2g_liuliang|total_liuliang|3g_liuliang|country_liuliang|mangshi_liuliang|arpu|xianshi_liuliang|province_liuliang"
+    flag="否"
+    mid_inserp_main(x_col,flag)
