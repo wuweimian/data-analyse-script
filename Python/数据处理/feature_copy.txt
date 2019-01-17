@@ -33,7 +33,7 @@ def copy(feature_key, source_key, source_col, new_col, sep='|'):
     source_filename = G_ENV.tmpdir
 
     # Ëø
-    time.sleep(60)
+    #time.sleep(60)
     lock = threading.Lock()
     lock.acquire()
     source_df = file_operate.read(source_dir, source_filename, sep)
