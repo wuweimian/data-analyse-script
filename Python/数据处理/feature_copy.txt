@@ -7,6 +7,7 @@ import report
 import file_operate
 import threading
 import time
+import win32con, win32file, pywintypes
 
 
 def show_data_head(des_dir, n=10):
