@@ -8,7 +8,7 @@ from sklearn.externals import joblib
 import report
 import os
 
-def out_result_data(phone,x_col,rate,projectId):
+def out_result_data(phone,x_col,rate):
     # 读取文件信息
     col = phone + "|" + x_col
     df = G_ENV.get_features_data(col)
@@ -86,4 +86,4 @@ if (__name__ == '__main__') & ('XXJOB' not in globals()):
     rate=0.4
     projectId="201901102045/201901102048"
 
-    out_result_data(phone,x_col,rate,projectId)
+    out_result_data(phone,x_col,rate)
