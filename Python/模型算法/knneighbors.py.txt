@@ -1,0 +1,89 @@
+# -*- coding: utf-8 -*-
+
+
+import genvs as GENV
+G_ENV = GENV.GENVS()
+
+import pandas as pd
+import sklearn.metrics
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import classification_report
+from sklearn.metrics import precision_recall_fscore_support
+from sklearn.preprocessing import LabelEncoder
+import report
+
+def show_data_head(des_dir, n=10):
+    df = G_ENV.get_features_data_all().head(n)
+    report.savedataframe(des_dir, "特征数据预览", df)
+
+################################################################################################
+def model_evaluate(model, x_train, x_test, y_train, y_test):
+    y_train_pred = model.predict(x_train)
+    y_test_pred = model.predict(x_test)
+    result_str = "类别|准确率\n"
+    result_str += "{}|{}\n".format("训练集准确率",accuracy_score(y_train, y_train_pred))
+    result_str += "{}|{}\n".format("测试集准确率", accuracy_score(y_test, y_test_pred))
+    result_str2 = "类别|精确率|召回率|F值|测试数量\n"
+    if hasattr(model, 'predict_proba'):
+        y_score = model.predict_proba(x_test)
+        y_hat = model.predict(x_test)
+
+    knneighbors_report = classification_report(y_test, y_hat)
+    lines = knneighbors_report.splitlines()
+    res = []
+    for row in lines[2:-2]:
+       rows = row.split('      ')
+       result_str2 += "{}|{}|{}|{}|{}\n".format(rows[1].replace(' ', ''), rows[2].replace(' ', ''), rows[3].replace(' ', ''), rows[4].replace(' ', ''), rows[5].replace(' ', ''))
+
+    fpr, tpr, thresholds = sklearn.metrics.roc_curve(y_test, y_score[:, 1])
+    auc = sklearn.metrics.auc(fpr, tpr)
+    result_str += "{}|{}\n".format("auc值", auc)
+    # 保存结果
+    report.savestrtb(G_ENV.get_result_dir(), "KNN模型评估结果", result_str)
+    report.savestrtb(G_ENV.get_result_dir(), "KNN测试集结果", result_str2)
+
+
+
+def knneighbors(x_col,y_col, train_size, algorithm, leaf_size,metric,metric_params,
+                n_jobs,n_neighbors,p,weights):
+    col = x_col+"|"+y_col
+    df = G_ENV.get_features_data(col)
+    df = df.dropna()
+    col_list = x_col.split('|')
+    x = (df[col_list]).values
+    y = df[y_col].values
+    x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=train_size, random_state=0)
+
+    if metric_params == 'None':
+        metric_params = None
+    KNN = KNeighborsClassifier(algorithm=algorithm, leaf_size=leaf_size, metric=metric,
+           metric_params=metric_params, n_jobs=n_jobs, n_neighbors=n_neighbors, p=p, weights=weights)
+    model_KNN = KNN.fit(x_train, y_train)
+    #持久化
+    report.saveskmd(G_ENV.get_result_dir(), "模型实例", model_KNN)
+
+    model_evaluate(model_KNN, x_train, x_test, y_train, y_test)
+    #生成报告
+    report.createhtml("运行结果", G_ENV.get_result_dir())
+
+########################################################################################
+# 以下是模板
+if (__name__ == '__main__') & ('XXJOB' not in globals()):
+    G_ENV.baseDir="C:/Users/Tim/Desktop/automodel/V2/data"
+    G_ENV.projectId = "projectId"
+    G_ENV.jobId="jobId"
+    G_ENV.instanceId="instanceId"
+    x_col = "2g_liuliang|total_liuliang|3g_liuliang|country_liuliang|mangshi_liuliang|arpu|xianshi_liuliang|province_liuliang"
+    train_size = 0.7
+    algorithm = 'auto'
+    leaf_size = 30
+    metric = 'minkowski'
+    metric_params = None
+    n_jobs = 1
+    n_neighbors = 2
+    p = 2
+    weights = 'uniform'
+    knneighbors(x_col,"flag", train_size, algorithm, leaf_size,metric,metric_params,
+                n_jobs,n_neighbors,p,weights)
