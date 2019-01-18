@@ -6,8 +6,7 @@ import pandas as pd
 import report
 import file_operate
 import threading
-import time
-
+import os, time
 
 def show_data_head(des_dir, n=10):
     df = G_ENV.get_features_data_all().head(n)
@@ -27,15 +26,20 @@ def copydf(feature_df, source_df, feature_key, source_key, source_col, new_col):
 
 
 def copy(feature_key, source_key, source_col, new_col, sep='|'):
+
     feature_dir = G_ENV.baseDir + "/" + G_ENV.projectId + "/work_file/"
     feature_filename = "features.csv"
     source_dir = G_ENV.baseDir + "/" + G_ENV.projectId + "/source_file/"
     source_filename = G_ENV.tmpdir
-
     # 锁
-    #time.sleep(60)
-    lock = threading.Lock()
-    lock.acquire()
+    status = True
+    while status == True:
+        if os.path.exists("lock.txt"):
+            time.sleep(30)
+            status = False
+        else:
+            os.makedirs("lock.txt")
+
     source_df = file_operate.read(source_dir, source_filename, sep)
     if file_operate.exists(feature_dir + feature_filename):
         feature_df = file_operate.read(feature_dir, feature_filename, ',')
@@ -50,7 +54,7 @@ def copy(feature_key, source_key, source_col, new_col, sep='|'):
         res.columns = coln
 
     file_operate.write(res, feature_dir, feature_filename, ',')
-    lock.release()
+
 
     show_data_head(G_ENV.get_result_dir("运行结果"), n=10)
     # 生成报告
