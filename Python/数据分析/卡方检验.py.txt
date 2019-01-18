@@ -12,23 +12,31 @@ x_col:特征列
 y_col:标签列
 k:选择k个最佳特征
 """
-def kafang_check_main(x_col,y_col,k):
+def kafang_check_main(x_col,y_col,ka_col,k):
     # 获取数据
     col = x_col + "|" + y_col
+    columns_col = ka_col.split("|")
     df = G_ENV.get_features_data(col)
     col_list = x_col.split('|')
     x = (df[col_list]).values
     y = df[y_col].values
     model1 = SelectKBest(chi2, k=k)
     data_np = model1.fit_transform(x, y)
-    #data_pd = pd.DataFrame(data_np)
+    ka_columns = ["卡方检验" + str(i + 1) for i in range(k)]
+    data_pd = pd.DataFrame(data_np,columns=ka_columns)
+    # 合并原来数据
+    data = df.drop(columns_col, axis=1)
+    data_new = pd.concat([data, data_pd], axis=1)
+
     result_str=""
     result_str += "{}\n".format(x_col)
     sizes = len(x_col.split("|"))
     for i in range(sizes):
         result_str +="{:.2f}|".format(model1.scores_[i])
-    print(result_str[:-1])
     # 保存前五行数据预览
     report.savestrtb(G_ENV.get_result_dir(), "卡方检验得分结果", result_str[:-1])
+    report.savedataframe(G_ENV.get_result_dir(), "卡方检验结果", data_new.head())
+    # 保存数据
+    G_ENV.update_features(data_new)
     # 生成报告
     report.createhtml("卡方检验得分结果", G_ENV.get_result_dir())
