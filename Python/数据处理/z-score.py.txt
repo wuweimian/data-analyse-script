@@ -6,16 +6,22 @@ import genvs as GENV
 G_ENV = GENV.GENVS()
 
 
-
 """
 z_score调用函数
 """
-def z_score_main(x_col):
+def z_score_main(x_col,y_col):
     data = G_ENV.get_features_data(x_col)
-    np_scaled = preprocessing.scale(data.values)
-    pd_scaler = pd.DataFrame(np_scaled)
+    columns_col = y_col.split("|")
+    #z_score
+    data_scale = data[columns_col]
+    np_scaled = preprocessing.scale(data_scale.values)
+    pd_scaler = pd.DataFrame(np_scaled,columns=columns_col)
+    # 标准化后更新原有数据
+    data[columns_col] = pd_scaler
+
     # 保存前五行数据预览
-    report.savedataframe(G_ENV.get_result_dir(), "z_score转换结果", pd_scaler.head())
+    report.savedataframe(G_ENV.get_result_dir(), "z_score转换结果", data.head())
+    # 保存数据
+    G_ENV.update_features(data)
     # 生成报告
     report.createhtml("z_score转换结果", G_ENV.get_result_dir())
-            
