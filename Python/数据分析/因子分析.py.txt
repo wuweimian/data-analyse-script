@@ -5,17 +5,24 @@ from sklearn.decomposition import FactorAnalysis
 import genvs as GENV
 G_ENV = GENV.GENVS()
 
-
-
 """
 因子分析调用函数
 """
-def yinzi_main(x_col,n_components=2):
+def yinzi_main(x_col,y_col,n_components):
     data = G_ENV.get_features_data(x_col)
+    columns_col = y_col.split("|")
+    data_fa = data[columns_col]
+    # 因子分析
     fa = FactorAnalysis(n_components=n_components)
-    np_data = fa.fit_transform(data.values)
-    pd_data = pd.DataFrame(np_data)
+    np_data = fa.fit_transform(data_fa.values)
+    fa_columns = [ "因子分析"+str(i+1) for i in range(n_components)]
+    pd_data = pd.DataFrame(np_data,columns=fa_columns)
+    # 合并原来数据
+    data = data.drop(columns_col,axis=1 )
+    data_new = pd.concat([data,pd_data], axis = 1)
     # 保存前五行数据预览
-    report.savedataframe(G_ENV.get_result_dir(), "因子分析结果", pd_data)
+    report.savedataframe(G_ENV.get_result_dir(), "因子分析结果", data_new.head())
+    # 保存数据
+    G_ENV.update_features(data_new)
     # 生成报告
     report.createhtml("因子分析结果", G_ENV.get_result_dir())
