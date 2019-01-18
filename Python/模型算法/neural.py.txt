@@ -1,0 +1,132 @@
+# -*- coding: utf-8 -*-
+
+
+import genvs as GENV
+G_ENV = GENV.GENVS()
+
+import pandas as pd
+import sklearn.metrics
+from sklearn.model_selection import train_test_split
+from sklearn.neural_network import MLPClassifier
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import classification_report
+from sklearn.metrics import precision_recall_fscore_support
+from sklearn.preprocessing import LabelEncoder
+import report
+
+def show_data_head(des_dir, n=10):
+    df = G_ENV.get_features_data_all().head(n)
+    report.savedataframe(des_dir, "特征数据预览", df)
+
+################################################################################################
+def model_evaluate(model, x_train, x_test, y_train, y_test):
+    y_train_pred = model.predict(x_train)
+    y_test_pred = model.predict(x_test)
+    result_str = "类别|准确率\n"
+    result_str += "{}|{}\n".format("训练集准确率",accuracy_score(y_train, y_train_pred))
+    result_str += "{}|{}\n".format("测试集准确率", accuracy_score(y_test, y_test_pred))
+    result_str2 = "类别|精确率|召回率|F值|测试数量\n"
+    if hasattr(model, 'predict_proba'):
+        y_score = model.predict_proba(x_test)
+        y_hat = model.predict(x_test)
+
+    neurals_report = classification_report(y_test, y_hat)
+    lines = neurals_report.splitlines()
+    res = []
+    for row in lines[2:-2]:
+       rows = row.split('      ')
+       result_str2 += "{}|{}|{}|{}|{}\n".format(rows[1].replace(' ', ''), rows[2].replace(' ', ''), rows[3].replace(' ', ''), rows[4].replace(' ', ''), rows[5].replace(' ', ''))
+
+    fpr, tpr, thresholds = sklearn.metrics.roc_curve(y_test, y_score[:, 1])
+    auc = sklearn.metrics.auc(fpr, tpr)
+    result_str += "{}|{}\n".format("auc值", auc)
+    # 保存结果
+    report.savestrtb(G_ENV.get_result_dir(), "神经网络模型评估结果", result_str)
+    report.savestrtb(G_ENV.get_result_dir(), "神经网络测试集结果", result_str2)
+
+
+
+def neurals(x_col,y_col, train_size,activation,alpha,batch_size,beta_1,beta_2,early_stopping,
+            epsilon,hidden_layer_sizes,learning_rate,learning_rate_init,max_iter,momentum,
+            nesterovs_momentum,power_t,random_state,shuffle,solver,tol,validation_fraction,
+            verbose,warm_start):
+    col = x_col + "|" + y_col
+    df = G_ENV.get_features_data(col)
+    df = df.dropna()
+    col_list = x_col.split('|')
+    x = (df[col_list]).values
+    y = df[y_col].values
+    x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=train_size, random_state=0)
+
+    if early_stopping == 'False':
+        early_stopping = False
+    if early_stopping == 'True':
+        early_stopping = True
+    if nesterovs_momentum == 'True':
+        nesterovs_momentum = True
+    if nesterovs_momentum == 'False':
+        nesterovs_momentum = False
+    if random_state == 'None':
+        random_state = None
+    if shuffle == 'True':
+        shuffle = True
+    if shuffle == 'False':
+        shuffle = False
+    if verbose == 'True':
+        verbose = True
+    if verbose == 'False':
+        verbose = False
+    if warm_start == 'True':
+        warm_start = True
+    if warm_start == 'False':
+        warm_start = False
+    NEURAL = MLPClassifier(activation=activation, alpha=alpha, batch_size=batch_size, beta_1=beta_1,
+       beta_2=beta_2, early_stopping=early_stopping, epsilon=epsilon,
+       hidden_layer_sizes=hidden_layer_sizes, learning_rate=learning_rate,
+       learning_rate_init=learning_rate_init, max_iter=max_iter, momentum=momentum,
+       nesterovs_momentum=nesterovs_momentum, power_t=power_t, random_state=random_state,
+       shuffle=shuffle, solver=solver, tol=tol, validation_fraction=validation_fraction,
+       verbose=verbose, warm_start=warm_start)
+    model_NEURAL = NEURAL.fit(x_train, y_train)
+    #持久化
+    report.saveskmd(G_ENV.get_result_dir(), "模型实例", model_NEURAL)
+
+    model_evaluate(model_NEURAL, x_train, x_test, y_train, y_test)
+    #生成报告
+    report.createhtml("运行结果", G_ENV.get_result_dir())
+
+########################################################################################
+# 以下是模板
+if (__name__ == '__main__') & ('XXJOB' not in globals()):
+    G_ENV.baseDir="C:/Users/Tim/Desktop/automodel/V2/data"
+    G_ENV.projectId = "projectId"
+    G_ENV.jobId="jobId"
+    G_ENV.instanceId="instanceId"
+    x_col = "2g_liuliang|total_liuliang|3g_liuliang|country_liuliang|mangshi_liuliang|arpu|xianshi_liuliang|province_liuliang"
+    train_size = 0.7
+    activation = 'relu'
+    alpha = 0.0001
+    batch_size = 'auto'
+    beta_1 = 0.9
+    beta_2 = 0.999
+    early_stopping = False
+    epsilon = 1e-08
+    hidden_layer_sizes = (100,)
+    learning_rate = 'constant'
+    learning_rate_init = 0.001
+    max_iter = 200
+    momentum = 0.9
+    nesterovs_momentum = True
+    power_t = 0.5
+    random_state = None
+    shuffle = True
+    solver = 'adam'
+    tol = 0.0001
+    validation_fraction = 0.1
+    verbose = False
+    warm_start = False
+
+    neurals(x_col,"flag", train_size,activation,alpha,batch_size,beta_1,beta_2,early_stopping,
+            epsilon,hidden_layer_sizes,learning_rate,learning_rate_init,max_iter,momentum,
+            nesterovs_momentum,power_t,random_state,shuffle,solver,tol,validation_fraction,
+            verbose,warm_start)
