@@ -1,0 +1,21 @@
+# -*- coding: utf-8 -*-
+import pandas as pd
+import report
+from sklearn import preprocessing
+import genvs as GENV
+G_ENV = GENV.GENVS()
+
+
+def data_head_main(x_col,type):
+    data = G_ENV.get_features_data(x_col)
+
+    # 保存前五行数据预览
+    if type=="头部":
+        report.savedataframe(G_ENV.get_result_dir(), "数据预览结果", data.head(10))
+    elif type=="尾部":
+        report.savedataframe(G_ENV.get_result_dir(), "数据预览结果", data.tail(10))
+    elif type=="随机":
+        report.savedataframe(G_ENV.get_result_dir(), "数据预览结果", data.sample(n=10))
+
+    # 生成报告
+    report.createhtml("数据预览结果", G_ENV.get_result_dir())
