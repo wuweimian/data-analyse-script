@@ -1,0 +1,45 @@
+# -*- coding: utf-8 -*-
+import pandas as pd
+import numpy as np
+from scipy.interpolate import lagrange
+import report
+import genvs as GENV
+G_ENV = GENV.GENVS()
+
+
+def get_line(xn, yn):
+    def line(x):
+        index = -1
+        # 找出x所在的区间
+        for i in range(1, len(xn)):
+            if x <= xn[i]:
+                index = i - 1
+                break
+            else:
+                i += 1
+        if index == -1:
+            return -100
+        # 插值
+        result = (x - xn[index + 1]) * yn[index] / float((xn[index] - xn[index + 1])) + (x - xn[index]) * yn[
+            index + 1] / float((xn[index + 1] - xn[index]))
+
+        return result
+    return line
+
+
+"""
+分线段插值调用函数
+"""
+def liner_inserp_main(col):
+    # 获取数据
+    data = G_ENV.get_features_data(col)
+
+    for i in data.columns:
+        for j in range(len(data)):
+            if(data[i].isnull())[j]:
+                data[i][j] = get_line(data[i],j)
+
+    # 保存前五行数据预览
+    report.savedataframe(G_ENV.get_result_dir(), "分线段插值结果", data.head())
+    # 生成报告
+    report.createhtml("分线段插值结果", G_ENV.get_result_dir())
