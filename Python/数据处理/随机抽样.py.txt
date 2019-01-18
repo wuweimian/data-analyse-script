@@ -1,0 +1,47 @@
+# -*- coding: utf-8 -*-
+import pandas as pd
+import report
+import genvs as GENV
+G_ENV = GENV.GENVS()
+
+
+
+"""
+随机抽样调用函数
+x_col:抽取的列
+n是要抽取的行数。
+flag:标签列
+flag_x:负样本值
+flag_y:正样本值
+rate:正负样本比例
+"""
+def random_sample_main(x_col,flag,flag_x,flag_y,rate,n):
+    data = G_ENV.get_features_data(x_col)
+    y = rate.split(":")[0]
+    x = rate.split(":")[1]
+    n_x = round(n * (int(x) / (int(x) + int(y))))
+    n_y = round(n * (int(y) / (int(x) + int(y))))
+    data_x = data[data[flag] == flag_x].sample(n=n_x)
+    data_y = data[data[flag] == flag_y].sample(n=n_y)
+
+    data_new = data_x.append(data_y)
+
+    # 保存前五行数据预览
+    report.savedataframe(G_ENV.get_result_dir(), "随机抽样结果", data.head())
+    # 保存数据
+    G_ENV.update_features(data_new)
+    # 生成报告
+    report.createhtml("随机抽样结果", G_ENV.get_result_dir())
+
+if __name__ == '__main__':
+    G_ENV.baseDir="C:/Users/Tim/Desktop/automodel/V2/data"
+    G_ENV.projectId = "projectId"
+    G_ENV.jobId="jobId"
+    G_ENV.instanceId="instanceId"
+    x_col = "phone|2g_liuliang|total_liuliang|3g_liuliang|country_liuliang|mangshi_liuliang|arpu|xianshi_liuliang|province_liuliang|flag"
+    flag="flag"
+    flag_x=0
+    flag_y=1
+    rate="1:5"
+    n=100
+    random_sample_main(x_col,flag,flag_x,flag_y,rate,n)
