@@ -1,0 +1,39 @@
+# -*- coding: utf-8 -*-
+import pandas as pd
+import numpy as np
+import report
+from sklearn.feature_selection import RFE
+from sklearn.linear_model import LinearRegression
+import genvs as GENV
+G_ENV = GENV.GENVS()
+
+def pretty_print_linear(coefs, names = None, sort = False):
+
+    lst = zip(names,coefs )
+    if sort:
+        lst = sorted(lst,  key = lambda x:-np.abs(x[1]),reverse=True)
+    return "\n".join("%s|%s" % (name,round(coef, 3))
+                                   for name, coef in lst)
+
+"""
+递归特征消除调用函数
+"""
+def digui_feature(x_col,y_col):
+    col = x_col + "|" + y_col
+    df = G_ENV.get_features_data(col)
+    col_list = x_col.split("|")
+    x = (df[col_list]).values
+    y = df[y_col].values
+
+    lr = LinearRegression()
+    rfe = RFE(lr, n_features_to_select=1)
+    rfe.fit(x, y)
+    result_str=""
+    result_str +="特征变量|特征排名\n"
+    result_str +="{}".format(pretty_print_linear(rfe.ranking_,col_list,True))
+    # 保存前五行数据预览
+    report.savestrtb(G_ENV.get_result_dir(), "递归特征消除结果", result_str)
+    # 生成报告
+    report.createhtml("递归特征消除结果", G_ENV.get_result_dir())
+            
+
