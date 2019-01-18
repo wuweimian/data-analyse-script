@@ -78,7 +78,7 @@ def gbdts(x_col,y_col, train_size,criterion,init,learning_rate,loss,max_depth,
     model_GBDT = GBDT.fit(x_train, y_train)
 
     #持久化
-    report.saveskmd(G_ENV.get_result_dir(), "模型实例", model_GBDT)
+    report.saveskmd(G_ENV.get_result_dir(newdir="result"), "model", model_GBDT)
 
     model_evaluate(model_GBDT, x_train, x_test, y_train, y_test)
     #生成报告
@@ -113,6 +113,8 @@ if (__name__ == '__main__') & ('XXJOB' not in globals()):
     subsample = 1.0
     verbose = 0
     warm_start = False
+    min_impurity_decrease = 0.0
+    min_weight_fraction_leaf = 0.0
     gbdts(x_col,"flag",train_size,criterion,init,learning_rate,loss,max_depth,max_features,max_leaf_nodes,
           min_impurity_split,min_samples_leaf,min_samples_split,n_estimators,presort,
           random_state,subsample,verbose,warm_start)
