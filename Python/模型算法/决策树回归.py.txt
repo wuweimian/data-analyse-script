@@ -1,0 +1,104 @@
+# -*- coding: utf-8 -*-
+
+
+import genvs as GENV
+
+G_ENV = GENV.GENVS()
+
+import pandas as pd
+import sklearn.metrics
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import Lasso, Ridge
+from sklearn.ensemble import  GradientBoostingRegressor
+from sklearn.tree import DecisionTreeRegressor
+
+import report
+
+
+def show_data_head(des_dir, n=10):
+    df = G_ENV.get_features_data_all().head(n)
+    report.savedataframe(des_dir, "特征数据预览", df)
+
+
+# 以上为模板
+################################################################################################
+def model_evaluate(model, x_train, x_test, y_train, y_test):
+    y_test_pred = model.predict(x_test)
+    y_train_pred = model.predict(x_train)
+    mse = np.average((y_test_pred - np.array(y_test)) ** 2)
+    rmse = np.sqrt(mse)
+    scores = model.score(x_test, y_test)
+
+    result_str = ""
+    result_str = "均方误差|均方根误差|R平方\n"
+    result_str +="{:.2f}|{:.2f}|{:.2f}\n".format(mse,rmse,scores)
+
+    # 保存结果
+    report.savestrtb(G_ENV.get_result_dir(), "决策树回归评估结果", result_str)
+
+
+def decision_regression(x_col, y_col, train_size,criterion,max_depth,max_features,
+                        max_leaf_nodes,min_impurity_split,min_samples_leaf,min_samples_split,
+                        presort,random_state,splitter):
+    col = x_col + "|" + y_col
+    df = G_ENV.get_features_data(col)
+    df = df.dropna()
+    x = (df.iloc[:, 0:len(df.columns) - 1]).values
+    y = (df.iloc[:, len(df.columns) - 1]).values
+    x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=train_size, random_state=0)
+
+    if max_features == 'None':
+        max_features = None
+    if max_leaf_nodes == 'None':
+        max_leaf_nodes = None
+    if max_features == 'None':
+        max_features = None
+    if min_impurity_split == 'None':
+        min_impurity_split = None
+    if random_state == 'None':
+        random_state = None
+    if presort == 'True':
+        presort = True
+    if presort == 'False':
+        presort = False
+    # 构建模型
+    decision_model = DecisionTreeRegressor(criterion=criterion, max_depth=max_depth,
+           max_features=max_features,max_leaf_nodes=max_leaf_nodes,
+           min_impurity_split=min_impurity_split, min_samples_leaf=min_samples_leaf,
+           min_samples_split=min_samples_split,
+           presort=presort, random_state=random_state, splitter=splitter)
+
+    model = decision_model.fit(x_train, y_train)
+    # 持久化
+    report.saveskmd(G_ENV.get_result_dir(), "模型实例", model)
+
+    model_evaluate(model, x_train, x_test, y_train, y_test)
+    # 生成报告
+    report.createhtml("运行结果", G_ENV.get_result_dir())
+
+
+########################################################################################
+# 以下是模板
+if (__name__ == '__main__') & ('XXJOB' not in globals()):
+    G_ENV.baseDir = "C:/Users/Tim/Desktop/automodel/V2/data"
+    G_ENV.projectId = "projectId"
+    G_ENV.jobId = "jobId"
+    G_ENV.instanceId = "instanceId"
+    x_col = "2g_liuliang|total_liuliang|3g_liuliang|country_liuliang|mangshi_liuliang|xianshi_liuliang|province_liuliang"
+    train_size = 0.7
+    criterion = 'mse'
+    max_depth = 100
+    max_features = None
+    max_leaf_nodes = None
+    min_impurity_decrease = 0.0
+    min_impurity_split = None
+    min_samples_leaf = 1
+    min_samples_split = 2
+    min_weight_fraction_leaf = 0.0
+    presort = False
+    random_state = None
+    splitter = 'best'
+    decision_regression(x_col, "arpu", train_size,criterion,max_depth,max_features,
+                        max_leaf_nodes,min_impurity_split,min_samples_leaf,min_samples_split,
+                        presort,random_state,splitter)
