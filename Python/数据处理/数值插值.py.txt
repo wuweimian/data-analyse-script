@@ -32,8 +32,12 @@ def data_insert_main(col,num,flag):
                 data[new_col] = data_interp(data[i],num)
                 pd_empty = pd_empty.append(data.loc[index])
 
+    pd_empty =pd_empty.reset_index()
+    pd_empty = pd_empty.drop_duplicates(subset="index", keep='last', inplace=False)
+    #pd_empty = pd_empty.drop(['index'],axis=1)
+    pd_empty = pd_empty.set_index("index")
     # 保存前五行数据预览
-    report.savedataframe(G_ENV.get_result_dir(), "数值插值结果", data.head())
+    report.savedataframe(G_ENV.get_result_dir(), "数值插值结果", pd_empty.sort_index().head())
     # 保存数据
     G_ENV.update_features(data)
     # 生成报告
