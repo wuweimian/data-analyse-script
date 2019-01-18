@@ -1,0 +1,20 @@
+# -*- coding: utf-8 -*-
+import pandas as pd
+import report
+from sklearn.preprocessing import Binarizer
+import genvs as GENV
+G_ENV = GENV.GENVS()
+
+
+"""
+特征二值化调用函数
+"""
+def binar_main(x_col):
+    data = G_ENV.get_features_data(x_col)
+    scaler = Binarizer()
+    np_scaler = scaler.transform(data)
+    pd_scaler = pd.DataFrame(np_scaler)
+    # 保存前五行数据预览
+    report.savedataframe(G_ENV.get_result_dir(), "特征二值化结果", pd_scaler.head())
+    # 生成报告
+    report.createhtml("特征二值化结果", G_ENV.get_result_dir())
