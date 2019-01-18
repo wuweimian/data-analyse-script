@@ -1,0 +1,124 @@
+# -*- coding: utf-8 -*-
+
+
+import genvs as GENV
+G_ENV = GENV.GENVS()
+
+import pandas as pd
+import sklearn.metrics
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import classification_report
+from sklearn.metrics import precision_recall_fscore_support
+from sklearn.preprocessing import LabelEncoder
+import report
+
+def show_data_head(des_dir, n=10):
+    df = G_ENV.get_features_data_all().head(n)
+    report.savedataframe(des_dir, "特征数据预览", df)
+
+
+################################################################################################
+def model_evaluate(model, x_train, x_test, y_train, y_test):
+    y_train_pred = model.predict(x_train)
+    y_test_pred = model.predict(x_test)
+    result_str = "类别|准确率\n"
+    result_str += "{}|{}\n".format("训练集准确率", accuracy_score(y_train, y_train_pred))
+    result_str += "{}|{}\n".format("测试集准确率", accuracy_score(y_test, y_test_pred))
+    result_str2 = "类别|精确率|召回率|F值|测试数量\n"
+    if hasattr(model, 'predict_proba'):
+        y_score = model.predict_proba(x_test)
+        y_hat = model.predict(x_test)
+
+    randomforest_report = classification_report(y_test, y_hat)
+    lines = randomforest_report.splitlines()
+    res = []
+    for row in lines[2:-2]:
+        rows = row.split('      ')
+        result_str2 += "{}|{}|{}|{}|{}\n".format(rows[1].replace(' ', ''), rows[2].replace(' ', ''),
+                                                 rows[3].replace(' ', ''), rows[4].replace(' ', ''),
+                                                 rows[5].replace(' ', ''))
+
+    fpr, tpr, thresholds = sklearn.metrics.roc_curve(y_test, y_score[:, 1])
+    auc = sklearn.metrics.auc(fpr, tpr)
+    result_str += "{}|{}\n".format("auc值", auc)
+    # 保存结果
+    report.savestrtb(G_ENV.get_result_dir(), "随机森林模型评估结果", result_str)
+    report.savestrtb(G_ENV.get_result_dir(), "随机森林测试集结果", result_str2)
+
+
+
+def randomforest(x_col,y_col, train_size,bootstrap,class_weight,criterion,max_depth,
+                 max_features,max_leaf_nodes,min_impurity_split,min_samples_leaf,
+                 min_samples_split,n_estimators,n_jobs,oob_score,random_state,verbose,warm_start):
+    col = x_col + "|" + y_col
+    df = G_ENV.get_features_data(col)
+    df = df.dropna()
+    col_list = x_col.split('|')
+    x = (df[col_list]).values
+    y = df[y_col].values
+    x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=train_size, random_state=0)
+
+    if bootstrap == 'True':
+        bootstrap = True
+    if bootstrap == 'False':
+        bootstrap = False
+    if class_weight == 'None':
+        class_weight = None
+    if max_leaf_nodes == 'None':
+        max_leaf_nodes = None
+    if min_impurity_split == 'None':
+        min_impurity_split = None
+    if oob_score == 'False':
+        oob_score = False
+    if oob_score == 'True':
+        oob_score = True
+    if warm_start == 'False':
+        warm_start = False
+    if warm_start == 'True':
+        warm_start = True
+    RandomForest = RandomForestClassifier(bootstrap=bootstrap,class_weight=class_weight,
+              criterion=criterion,max_depth=max_depth,
+             max_features=max_features, max_leaf_nodes=max_leaf_nodes,
+             min_impurity_split=min_impurity_split,
+            min_samples_leaf=min_samples_leaf, min_samples_split=min_samples_split,
+             n_estimators=n_estimators, n_jobs=n_jobs,
+            oob_score=oob_score, random_state=random_state, verbose=verbose, warm_start=warm_start)
+    model_RandomForest = RandomForest.fit(x_train, y_train)
+    #持久化
+    report.saveskmd(G_ENV.get_result_dir(), "模型实例", model_RandomForest)
+
+    model_evaluate(model_RandomForest, x_train, x_test, y_train, y_test)
+    #生成报告
+    report.createhtml("运行结果", G_ENV.get_result_dir())
+
+########################################################################################
+# 以下是模板
+if (__name__ == '__main__') & ('XXJOB' not in globals()):
+    G_ENV.baseDir="C:/Users/Tim/Desktop/automodel/V2/data"
+    G_ENV.projectId = "projectId"
+    G_ENV.jobId="jobId"
+    G_ENV.instanceId="instanceId"
+    x_col = "2g_liuliang|total_liuliang|3g_liuliang|country_liuliang|mangshi_liuliang|arpu|xianshi_liuliang|province_liuliang"
+    train_size = 0.7
+    bootstrap = True
+    class_weight = None
+    criterion = 'gini'
+    max_depth = 2
+    max_features = 'auto'
+    max_leaf_nodes = None
+    min_impurity_decrease = 0.0
+    min_impurity_split = None
+    min_samples_leaf = 1
+    min_samples_split = 2
+    min_weight_fraction_leaf = 0.0
+    n_estimators = 10
+    n_jobs = 1
+    oob_score = False
+    random_state = 0
+    verbose = 0
+    warm_start = False
+    randomforest(x_col,"flag", train_size,bootstrap,class_weight,criterion,max_depth,
+                 max_features,max_leaf_nodes,min_impurity_split,min_samples_leaf,
+                 min_samples_split,n_estimators,n_jobs,oob_score,random_state,verbose,warm_start)
