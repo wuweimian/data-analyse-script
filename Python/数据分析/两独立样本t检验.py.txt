@@ -1,0 +1,23 @@
+# -*- coding: utf-8 -*-
+import pandas as pd
+import report
+from scipy import stats
+import genvs as GENV
+G_ENV = GENV.GENVS()
+
+"""
+两独立样本t检验调用函数
+"""
+def ttest_ind_main(x_col,y_col):
+    df1 = G_ENV.get_features_data(x_col)
+    a_var = df1.var()
+    print(a_var)
+    df2 = G_ENV.get_features_data(y_col)
+    b_var = df2.var()
+    t,p = stats.ttest_ind(a_var, b_var)
+    result_str = "t统计值|p统计值\n"
+    result_str += "{}|{}\n".format(t, p)
+    # 保存前五行数据预览
+    report.savestrtb(G_ENV.get_result_dir(), "两独立样本t检验结果", result_str)
+    # 生成报告
+    report.createhtml("两独立样本t检验结果", G_ENV.get_result_dir())
