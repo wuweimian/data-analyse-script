@@ -1,0 +1,28 @@
+# -*- coding: utf-8 -*-
+import pandas as pd
+import report
+import genvs as GENV
+G_ENV = GENV.GENVS()
+
+
+"""
+众数插值
+"""
+def mode_interp(x,n=0):
+    mode = x.mode()
+    x = x.fillna(mode.iloc[n])
+    return x
+
+"""
+众数插值调用函数
+"""
+def mode_insert_main(col):
+    data = G_ENV.get_features_data(col)
+    for i in data.columns:
+        data[i] = mode_interp(data[i])
+
+
+    # 保存前五行数据预览
+    report.savedataframe(G_ENV.get_result_dir(), "众数插值结果", data.head())
+    # 生成报告
+    report.createhtml("众数插值结果", G_ENV.get_result_dir())
