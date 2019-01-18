@@ -45,7 +45,16 @@ def svm_regression(x_col, y_col, train_size,C,cache_size,coef0,degree,epsilon,
     x = (df.iloc[:, 0:len(df.columns) - 1]).values
     y = (df.iloc[:, len(df.columns) - 1]).values
     x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=train_size, random_state=0)
-
+    
+    if shrinking == 'True':
+        shrinking = True
+    if shrinking == 'False':
+        shrinking = False
+    if verbose == 'True':
+        verbose = True
+    if verbose == 'False':
+        verbose = False
+        
     # 构建模型
     model_svm = svm.SVR(C=C, cache_size=cache_size, coef0=coef0, degree=degree,
                         epsilon=epsilon, gamma=gamma,kernel=kernel, max_iter=max_iter,
