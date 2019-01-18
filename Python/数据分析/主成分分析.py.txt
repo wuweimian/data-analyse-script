@@ -8,20 +8,42 @@ G_ENV = GENV.GENVS()
 """
 主成分分析调用函数
 """
-def PCA_main(x_col,n_components):
+def PCA_main(x_col,y_col,n_components):
     data = G_ENV.get_features_data(x_col)
+    columns_col = y_col.split("|")
+    data_pca = data[columns_col]
 
     # 输入参数类型转换
     if n_components=="mle":
         n_components=n_components
     else:
         n_components = int(n_components)
-
+    # 主成分分析
     pca = PCA(n_components=n_components)
-    np_data = pca.fit_transform(data.values)
-    print("方差贡献率：",pca.explained_variance_ratio_)
-    pd_data = pd.DataFrame(np_data)
+    np_data = pca.fit_transform(data_pca.values)
+
+    pca_columns = ["主成分分析" + str(i + 1) for i in range(n_components)]
+    pd_data = pd.DataFrame(np_data,columns=pca_columns)
+    # 合并原来数据
+    data = data.drop(columns_col, axis=1)
+    data_new = pd.concat([data, pd_data], axis=1)
+
+    # 方差贡献率
+    variance_rate = pca.explained_variance_ratio_
+    variance_df = pd.DataFrame(variance_rate)
+    result_str = ""
+    for i in pca_columns:
+        result_str +="{}|".format(i)
+
+    result_str = result_str[:-1]
+    result_str += "\n"
+    for i in variance_rate:
+        result_str +="{}|".format(i)
+    result_str = result_str[:-1]
     # 保存前五行数据预览
-    report.savedataframe(G_ENV.get_result_dir(), "主成分分析结果", pd_data.head())
+    report.savestrtb(G_ENV.get_result_dir(), "方差贡献率", result_str)
+    report.savedataframe(G_ENV.get_result_dir(), "主成分分析结果", data_new.head())
+    # 保存数据
+    #G_ENV.update_features(data_new)
     # 生成报告
     report.createhtml("主成分分析结果", G_ENV.get_result_dir())
