@@ -1,0 +1,16 @@
+# -*- coding: utf-8 -*-
+import pandas as pd
+import report
+import genvs as GENV
+G_ENV = GENV.GENVS()
+
+def drop_nan_main(col):
+    data = G_ENV.get_features_data(col)
+    data = data.dropna()
+
+    # 保存前五行数据预览
+    report.savedataframe(G_ENV.get_result_dir(), "删除空值结果", data.head())
+    # 保存数据
+    G_ENV.update_features(data)
+    # 生成报告
+    report.createhtml("删除空值结果", G_ENV.get_result_dir())
