@@ -1,0 +1,76 @@
+# -*- coding: utf-8 -*-
+
+
+import genvs as GENV
+G_ENV = GENV.GENVS()
+
+import pandas as pd
+import numpy as np
+import sklearn.metrics
+from sklearn.model_selection import train_test_split
+from statsmodels.tsa.arima_model import ARMA, ARIMA
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import classification_report
+import report
+import matplotlib.pylab as plt
+import seaborn as sns
+
+# 一阶差分，让数据平稳
+def diff_data(timeseries):
+    ts_log = np.log(timeseries)
+    ts_log_diff = ts_log - ts_log.shift()
+    ts_log_diff.dropna(inplace=True)
+    return ts_log_diff
+
+
+def ma(date_col,flag_col,q=2):
+    col = date_col + "|" + flag_col
+    data = G_ENV.get_features_data(col)
+    #data = pd.read_csv("AirPassengers.csv")
+    col_list = col.split('|')
+    data = data[col_list]
+    data[date_col] = pd.to_datetime(data[date_col])
+    data.set_index(date_col, inplace=True)
+    ts = data[flag_col]
+
+    # 差分
+    ts_log = np.log(ts)
+    ts_log_diff = ts_log - ts_log.shift()
+    ts_log_diff.dropna(inplace=True)
+    # arima模型
+    model = ARIMA(ts_log, order=(2, 1, 2))
+    results_ARIMA = model.fit(disp=-1)
+    plt.rcParams['font.sans-serif'] = ['SimHei']
+    plt.rcParams['figure.figsize'] = 15, 5
+    plt.plot(ts_log_diff)
+    plt.plot(results_ARIMA.fittedvalues, color='red')
+    plt.title('MA模型累计平方误差%.4f' % sum((results_ARIMA.fittedvalues - ts_log_diff) ** 2))
+    report.saveimg(G_ENV.get_result_dir(), "MA模型拟合度", plt)
+    report.createhtml("MA模型拟合度", G_ENV.get_result_dir())
+
+    # 拟合值是对原数据进行稳定化之后的输入数据的拟合，所以需对拟合值进行相应处理的逆操作
+    # ARIMA拟合的其实是一阶差分ts_log_diff
+    predictions_ARIMA_diff = pd.Series(results_ARIMA.fittedvalues, copy=True)
+    predictions_ARIMA_diff_cumsum = predictions_ARIMA_diff.cumsum()
+    # 先ts_log_diff => ts_log=>ts_log => ts
+    # 然后得到了predictions_ARIMA_log => predictions_ARIMA
+    predictions_ARIMA_log = pd.Series(ts_log.ix[0], index=ts_log.index)
+    predictions_ARIMA_log = predictions_ARIMA_log.add(predictions_ARIMA_diff_cumsum, fill_value=0)
+    predictions_ARIMA = np.exp(predictions_ARIMA_log)
+    plt.figure()
+    plt.plot(ts)
+    plt.plot(predictions_ARIMA)
+    plt.title('MA模型均方根误差为%.4f' % np.sqrt(sum((predictions_ARIMA - ts) ** 2) / len(ts)))
+    report.saveimg(G_ENV.get_result_dir(), "MA模型预测结果", plt)
+    report.createhtml("MA模型预测结果", G_ENV.get_result_dir())
+
+########################################################################################
+# 以下是模板
+if (__name__ == '__main__') & ('XXJOB' not in globals()):
+    G_ENV.baseDir="C:/Users/Tim/Desktop/automodel/V2/data"
+    G_ENV.projectId = "projectId"
+    G_ENV.jobId="jobId"
+    G_ENV.instanceId="instanceId"
+
+    q=2
+    ma('Month','#Passengers',q)
