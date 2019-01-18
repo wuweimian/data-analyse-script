@@ -1,0 +1,53 @@
+# -*- coding: utf-8 -*-
+
+import genvs as GENV
+G_ENV = GENV.GENVS()
+
+import pandas as pd
+import numpy as np
+from pandas import Series
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+import report
+
+
+def show_data_head(des_dir, n=10):
+    df = G_ENV.get_features_data_all().head(n)
+    report.savedataframe(des_dir, "特征数据预览", df)
+
+
+"""
+col：传入特征列值，以|分隔
+flag：标签列
+"""
+def model_coeff(x_col,flag):
+	##########################################################################
+    col = x_col + "|" + flag
+    df = G_ENV.get_features_data(col)
+
+    x, y = df.iloc[:, 1:].values, df[flag].values
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3, random_state=0)
+    feat_labels = df.columns[1:]
+
+    rfc = RandomForestClassifier(n_jobs=-1)
+    rfc.fit(x_train, y_train)
+    importances = rfc.feature_importances_
+    indices = np.argsort(importances)[::-1]
+    result_str="模型指标|系数\n"
+    for f in range(x_train.shape[1]):
+        result_str+="{}|{}\n".format(feat_labels[indices[f]], importances[indices[f]])
+
+    # 保存结果
+    des_dir= G_ENV.get_result_dir("运行结果")
+    report.savestrtb(des_dir, "模型指标系数", result_str)
+
+    report.createhtml("运行结果", des_dir)
+
+
+if (__name__ == '__main__') & ('XXJOB' not in globals()):
+    G_ENV.baseDir="C:/Users/Tim/Desktop/automodel/V2/data"
+    G_ENV.projectId = "projectId"
+    G_ENV.jobId="jobId"
+    G_ENV.instanceId="instanceId"
+
+    model_coeff("2g_liuliang|total_liuliang|3g_liuliang|country_liuliang|mangshi_liuliang|arpu|xianshi_liuliang|province_liuliang|flag","flag")
