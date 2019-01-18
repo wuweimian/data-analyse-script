@@ -1,0 +1,40 @@
+# -*- coding: utf-8 -*-
+import pandas as pd
+import report
+import genvs as GENV
+G_ENV = GENV.GENVS()
+
+
+"""
+数值插值
+"""
+def data_interp(x,n):
+    x = x.fillna(n)
+    return x
+
+def data_insert_main(col,num,flag):
+    data = G_ENV.get_features_data(col)
+    columns_list = col.split("|")
+    pd_empty = pd.DataFrame(columns=data.columns)
+    if flag == "是":
+        for i in columns_list:
+            nans = pd.isnull(data[i]).tolist()
+            index = [i for i,x in enumerate(nans) if x==True]
+            if True in nans:
+                data[i] = data_interp(data[i],num)
+                pd_empty = pd_empty.append(data.loc[index])
+    else:
+        for i in columns_list:
+            nans = pd.isnull(data[i]).tolist()
+            index = [i for i,x in enumerate(nans) if x==True]
+            if True in nans:
+                new_col = i + "_数值插值"
+                data[new_col] = data_interp(data[i],num)
+                pd_empty = pd_empty.append(data.loc[index])
+
+    # 保存前五行数据预览
+    report.savedataframe(G_ENV.get_result_dir(), "数值插值结果", data.head())
+    # 保存数据
+    G_ENV.update_features(data)
+    # 生成报告
+    report.createhtml("数值插值结果", G_ENV.get_result_dir())
