@@ -1,0 +1,19 @@
+# -*- coding: utf-8 -*-
+import pandas as pd
+import report
+from scipy import stats
+import genvs as GENV
+import matplotlib.pyplot as plt
+G_ENV = GENV.GENVS()
+
+"""
+协方差调用函数
+"""
+def cov_main(x_col):
+    data = G_ENV.get_features_data(x_col)
+    cov = data.cov()
+    # 保存数据预览
+    report.savedataframe(G_ENV.get_result_dir(), "协方差结果", cov)
+    # 生成报告
+    report.createhtml("协方差结果", G_ENV.get_result_dir())
+            
