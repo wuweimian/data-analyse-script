@@ -1,0 +1,25 @@
+# -*- coding: utf-8 -*-
+import pandas as pd
+import report
+import genvs as GENV
+G_ENV = GENV.GENVS()
+
+
+def ji_zhi_main(col):
+    data = G_ENV.get_features_data(col)
+
+    # 极值
+    for i in data.columns:
+        data_avg = data[i].mean()
+        data_std = data[i].std()
+        data_yichang = data_avg + 3 * data_std
+        data = data[data[i] < data_yichang]
+        # persent_num = data[i].quantile(0.01)
+        # data = data[data[i] > persent_num]
+
+    # 保存前五行数据预览
+    report.savedataframe(G_ENV.get_result_dir(), "极值处理结果", data.head())
+    # 保存数据
+    G_ENV.update_features(data)
+    # 生成报告
+    report.createhtml("极值处理结果", G_ENV.get_result_dir())
