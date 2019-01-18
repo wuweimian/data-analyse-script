@@ -9,12 +9,18 @@ G_ENV = GENV.GENVS()
 """
 规范化调用函数
 """
-def norma_main(x_col):
+def norma_main(x_col,y_col):
     data = G_ENV.get_features_data(x_col)
-    scaler = normalize(data)
-    pd_scaler = pd.DataFrame(scaler)
+    columns_col = y_col.split("|")
+    data_scale = data[columns_col]
+    scaler = normalize(data_scale)
+    pd_scaler = pd.DataFrame(scaler,columns=columns_col)
+    # 标准化后更新原有数据
+    data[columns_col] = pd_scaler
     # 保存前五行数据预览
-    report.savedataframe(G_ENV.get_result_dir(), "规范化结果", pd_scaler.head())
+    report.savedataframe(G_ENV.get_result_dir(), "规范化结果", data.head())
+    # 保存数据
+    G_ENV.update_features(data)
     # 生成报告
     report.createhtml("规范化结果", G_ENV.get_result_dir())
- 
+            
