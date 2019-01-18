@@ -18,7 +18,7 @@ def kafang_check_main(x_col,y_col,ka_col,k):
     columns_col = ka_col.split("|")
     df = G_ENV.get_features_data(col)
     col_list = x_col.split('|')
-    x = (df[col_list]).values
+    x = (df[columns_col]).values
     y = df[y_col].values
     model1 = SelectKBest(chi2, k=k)
     data_np = model1.fit_transform(x, y)
