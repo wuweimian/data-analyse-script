@@ -1,0 +1,111 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pylab as plt
+from matplotlib.pylab import rcParams
+from statsmodels.tsa.stattools import adfuller
+from statsmodels.tsa.seasonal import seasonal_decompose
+from statsmodels.tsa.stattools import acf, pacf
+import genvs as GENV
+G_ENV = GENV.GENVS()
+import report
+
+"""
+判断时序数据稳定性
+--通过每个时间段内的平均的数据均值和标准差分析数据稳定性
+"""
+def test_stationarity(timeseries):
+    # 这里以一年为一个窗口，每一个时间t的值由它前面12个月（包括自己）的均值代替，标准差同理。
+    rolmean = pd.rolling_mean(timeseries, window=12)
+    rolstd = pd.rolling_std(timeseries, window=12)
+
+    # plot rolling statistics:
+    fig = plt.figure()
+    fig.add_subplot()
+    orig = plt.plot(timeseries, color='blue', label='原始数据')
+    mean = plt.plot(rolmean, color='red', label='均值')
+    std = plt.plot(rolstd, color='black', label='标准差')
+
+    plt.legend(loc='best')
+    plt.title('数据均值与标准差分布')
+    #plt.show(block=False)
+
+    # Dickey-Fuller test:
+    print('Results of Dickey-Fuller Test:')
+    dftest = adfuller(timeseries, autolag='AIC')
+    # dftest的输出前一项依次为检测值，p值，滞后数，使用的观测数，各个置信度下的临界值
+    dfoutput = pd.Series(dftest[0:4], index=['Test Statistic', 'p-value', '#Lags Used', 'Number of Observations Used'])
+    for key, value in dftest[4].items():
+        dfoutput['Critical value (%s)' % key] = value
+    print(dfoutput)
+    return plt
+
+
+# 一阶差分，让数据平稳
+def diff_data(timeseries):
+    ts_log = np.log(timeseries)
+    ts_log_diff = ts_log - ts_log.shift()
+    ts_log_diff.dropna(inplace=True)
+    plt2 = test_stationarity(ts_log_diff)
+    report.saveimg(G_ENV.get_result_dir(), "ARIMA模型差分结果", plt2)
+    report.createhtml("ARIMA模型差分结果", G_ENV.get_result_dir())
+
+    return ts_log_diff
+
+#通过ACF,PACF进行ARIMA（p，d，q）的p，q参数估计
+#ACF:自相关
+#PCF:偏相关
+def get_pq_pacf(ts_log_diff):
+    lag_acf = acf(ts_log_diff, nlags=20)
+    lag_pacf = pacf(ts_log_diff, nlags=20, method='ols')
+    # Plot ACF:
+    plt.subplot(121)
+    plt.plot(lag_acf)
+    plt.axhline(y=0, linestyle='--', color='gray')
+    plt.axhline(y=-1.96 / np.sqrt(len(ts_log_diff)), linestyle='--', color='gray')
+    plt.axhline(y=1.96 / np.sqrt(len(ts_log_diff)), linestyle='--', color='gray')
+    plt.title('Autocorrelation Function')
+
+    # Plot PACF:
+    plt.subplot(122)
+    plt.plot(lag_pacf)
+    plt.axhline(y=0, linestyle='--', color='gray')
+    plt.axhline(y=-1.96 / np.sqrt(len(ts_log_diff)), linestyle='--', color='gray')
+    plt.axhline(y=1.96 / np.sqrt(len(ts_log_diff)), linestyle='--', color='gray')
+    plt.title('Partial Autocorrelation Function')
+    plt.tight_layout()
+    #plt.show()
+    report.saveimg(G_ENV.get_result_dir(), "ARIMA模型ACF,PACF结果", plt)
+    report.createhtml("ARIMA模型ACF,PACF结果", G_ENV.get_result_dir())
+
+
+"""
+主要是看原始数据的稳定性
+date_col：为时间列
+flag_col：为分析的标签列
+"""
+def arima_data_fenxi(date_col,flag_col):
+    col = date_col + "|" + flag_col
+    data = G_ENV.get_features_data(col)
+    #data = pd.read_csv("AirPassengers.txt")
+    col_list = col.split('|')
+    data = data[col_list]
+    data[date_col] = pd.to_datetime(data[date_col])
+    data.set_index(date_col, inplace=True)
+    #dateparse = lambda dates: pd.datetime.strptime(dates, '%Y-%m')
+    # paese_dates指定日期在哪列  ;index_dates将年月日的哪个作为索引 ;date_parser将字符串转为日期
+    #data = pd.read_csv('AirPassengers.csv', parse_dates=['Month'], index_col='Month', date_parser=dateparse)
+    plt.rcParams['font.sans-serif'] = ['SimHei']
+    plt.rcParams['figure.figsize'] = 15, 5
+    ts = data[flag_col]
+    plt1 = test_stationarity(ts)
+
+    report.saveimg(G_ENV.get_result_dir(), "ARIMA模型数据分析", plt1)
+    report.createhtml("ARIMA模型数据分析", G_ENV.get_result_dir())
+
+    # 差分
+    ts_log_diff = diff_data(ts)
+
+    # p，q参数
+    get_pq_pacf(ts_log_diff)
+
+
