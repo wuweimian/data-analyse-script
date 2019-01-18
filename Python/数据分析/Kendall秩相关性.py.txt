@@ -1,0 +1,18 @@
+# -*- coding: utf-8 -*-
+import pandas as pd
+import report
+import genvs as GENV
+G_ENV = GENV.GENVS()
+
+
+"""
+Kendall相关性调用函数
+"""
+def Kendall_main(x_col):
+    data = G_ENV.get_features_data(x_col)
+    data_corr = data.corr('kendall')
+    # 保存前五行数据预览
+    report.savedataframe(G_ENV.get_result_dir(), "Kendall相关性结果", data_corr)
+    # 生成报告
+    report.createhtml("Kendall相关性结果", G_ENV.get_result_dir())
+            
