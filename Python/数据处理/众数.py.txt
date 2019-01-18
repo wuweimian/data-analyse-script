@@ -16,13 +16,34 @@ def mode_interp(x,n=0):
 """
 众数插值调用函数
 """
-def mode_insert_main(col):
+def mode_insert_main(col,flag):
     data = G_ENV.get_features_data(col)
-    for i in data.columns:
-        data[i] = mode_interp(data[i])
 
+    columns_list = col.split("|")
+    pd_empty = pd.DataFrame(columns=data.columns)
+    if flag=="是":
+        for i in columns_list:
+            nans = pd.isnull(data[i]).tolist()
+            index = [i for i,x in enumerate(nans) if x==True]
+            if True in nans:
+                data[i] = mode_interp(data[i])
+                pd_empty = pd_empty.append(data.loc[index])
+    else:
+        for i in columns_list:
+            nans = pd.isnull(data[i]).tolist()
+            index = [i for i, x in enumerate(nans) if x == True]
+            if True in nans:
+                new_col = i + "_众数插值"
+                data[new_col] = mode_interp(data[i])
+                pd_empty = pd_empty.append(data.loc[index])
 
+    pd_empty = pd_empty.reset_index()
+    pd_empty = pd_empty.drop_duplicates(subset="index", keep='last', inplace=False)
+    # pd_empty = pd_empty.drop(['index'],axis=1)
+    pd_empty = pd_empty.set_index("index")
     # 保存前五行数据预览
-    report.savedataframe(G_ENV.get_result_dir(), "众数插值结果", data.head())
+    report.savedataframe(G_ENV.get_result_dir(), "众数插值结果", pd_empty.sort_index().head())
+    # 保存数据
+    G_ENV.update_features(data)
     # 生成报告
     report.createhtml("众数插值结果", G_ENV.get_result_dir())
