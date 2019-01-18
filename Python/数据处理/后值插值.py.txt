@@ -1,0 +1,43 @@
+# -*- coding: utf-8 -*-
+import pandas as pd
+import report
+import genvs as GENV
+
+G_ENV = GENV.GENVS()
+
+
+def after_interp(x):
+    x = x.fillna(axis=0, method='bfill')
+    return x
+
+
+def after_insert_main(col, flag):
+    data = G_ENV.get_features_data(col)
+    columns_list = col.split("|")
+    pd_empty = pd.DataFrame(columns=data.columns)
+    if flag == "是":
+        for i in columns_list:
+            nans = pd.isnull(data[i]).tolist()
+            index = [i for i, x in enumerate(nans) if x == True]
+            if True in nans:
+                data[i] = after_interp(data[i])
+                pd_empty = pd_empty.append(data.loc[index])
+    else:
+        for i in columns_list:
+            nans = pd.isnull(data[i]).tolist()
+            index = [i for i, x in enumerate(nans) if x == True]
+            if True in nans:
+                new_col = i + "_后值插值"
+                data[new_col] = after_interp(data[i])
+                pd_empty = pd_empty.append(data.loc[index])
+
+    # data = data.fillna(axis=0, method='ffill')
+    pd_empty = pd_empty.reset_index()
+    pd_empty = pd_empty.drop_duplicates(subset="index", keep='last', inplace=False)
+    pd_empty = pd_empty.set_index("index")
+    # 保存前五行数据预览
+    report.savedataframe(G_ENV.get_result_dir(), "后值插值结果", pd_empty.sort_index().head())
+    # 保存数据
+    G_ENV.update_features(data)
+    # 生成报告
+    report.createhtml("后值插值结果", G_ENV.get_result_dir())
