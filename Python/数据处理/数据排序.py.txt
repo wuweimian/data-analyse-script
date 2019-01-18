@@ -1,0 +1,19 @@
+# -*- coding: utf-8 -*-
+import pandas as pd
+import report
+import genvs as GENV
+G_ENV = GENV.GENVS()
+
+
+
+
+def sort_values_main(x_col,s_col):
+    data = G_ENV.get_features_data(x_col)
+    s_col = s_col.split("|")
+    data = data.sort_values(by=s_col)
+
+    # 保存前五行数据预览
+    report.savedataframe(G_ENV.get_result_dir(), "数据排序结果", data.head())
+    # 生成报告
+    report.createhtml("数据排序结果", G_ENV.get_result_dir())
+            
