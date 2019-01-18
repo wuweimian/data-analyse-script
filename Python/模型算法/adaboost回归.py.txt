@@ -1,0 +1,78 @@
+# -*- coding: utf-8 -*-
+
+import genvs as GENV
+G_ENV = GENV.GENVS()
+import xgboost as xgb
+import pandas as pd
+from sklearn.ensemble import AdaBoostRegressor
+import sklearn.metrics
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import classification_report
+import report
+
+def show_data_head(des_dir, n=10):
+    df = G_ENV.get_features_data_all().head(n)
+    report.savedataframe(des_dir, "特征数据预览", df)
+
+
+################################################################################################
+def model_evaluate(model, x_train, x_test, y_train, y_test):
+    y_test_pred = model.predict(x_test)
+    y_train_pred = model.predict(x_train)
+
+    mse = np.average((y_test_pred - np.array(y_test)) ** 2)
+    rmse = np.sqrt(mse)
+    scores = model.score(x_test, y_test)
+
+    result_str = ""
+    result_str = "均方误差|均方根误差|R平方\n"
+    result_str +="{:.2f}|{:.2f}|{:.2f}\n".format(mse,rmse,scores)
+
+    # 保存结果
+    report.savestrtb(G_ENV.get_result_dir(), "xgboost回归评估结果", result_str)
+
+def adaboosts_regisson(x_col,y_col,train_size,base_estimator,learning_rate,
+                       loss,n_estimators,random_state
+          ):
+
+    col = x_col + "|" + y_col
+    df = G_ENV.get_features_data(col)
+    df = df.dropna()
+    x = (df.iloc[:, 0:len(df.columns) - 1]).values
+    y = (df.iloc[:, len(df.columns) - 1]).values
+    x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=train_size, random_state=0)
+
+    if base_estimator == 'None':
+        base_estimator = None
+    if random_state == 'None':
+        random_state = None
+
+    adaboost = AdaBoostRegressor(base_estimator=base_estimator, learning_rate=learning_rate,
+                                 loss=loss,n_estimators=n_estimators, random_state=random_state)
+    model_adaboost = adaboost.fit(x_train, y_train)
+
+    #持久化
+    report.saveskmd(G_ENV.get_result_dir(), "模型实例", model_adaboost)
+
+    model_evaluate(model_adaboost, x_train, x_test, y_train, y_test)
+    #生成报告
+    report.createhtml("运行结果", G_ENV.get_result_dir())
+
+########################################################################################
+# 以下是模板
+if (__name__ == '__main__') & ('XXJOB' not in globals()):
+    G_ENV.baseDir="C:/Users/Tim/Desktop/automodel/V2/data"
+    G_ENV.projectId = "projectId"
+    G_ENV.jobId="jobId"
+    G_ENV.instanceId="instanceId"
+    x_col = "2g_liuliang|total_liuliang|3g_liuliang|country_liuliang|mangshi_liuliang|arpu|xianshi_liuliang|province_liuliang"
+    train_size = 0.7
+    base_estimator = None
+    learning_rate = 1.0
+    loss = 'linear'
+    n_estimators = 50
+    random_state = None
+    adaboosts_regisson(x_col,"arpu",train_size,base_estimator,learning_rate,
+                       loss,n_estimators,random_state)
