@@ -1,0 +1,19 @@
+# -*- coding: utf-8 -*-
+import pandas as pd
+import report
+import genvs as GENV
+G_ENV = GENV.GENVS()
+
+
+"""
+数据类型转换调用函数
+"""
+def trans_type_main(x_col,s_col,type):
+    data = G_ENV.get_features_data(x_col)
+    s_col = s_col.split("|")
+    data = data[s_col].astype(type)
+
+    # 保存前五行数据预览
+    report.savedataframe(G_ENV.get_result_dir(), "数据类型转换结果", data.head())
+    # 生成报告
+    report.createhtml("数据类型转换结果", G_ENV.get_result_dir())
