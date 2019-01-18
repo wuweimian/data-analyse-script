@@ -44,6 +44,6 @@ def PCA_main(x_col,y_col,n_components):
     report.savestrtb(G_ENV.get_result_dir(), "方差贡献率", result_str)
     report.savedataframe(G_ENV.get_result_dir(), "主成分分析结果", data_new.head())
     # 保存数据
-    #G_ENV.update_features(data_new)
+    G_ENV.update_features(data_new)
     # 生成报告
     report.createhtml("主成分分析结果", G_ENV.get_result_dir())
