@@ -1,0 +1,81 @@
+# -*- coding: utf-8 -*-
+
+
+import genvs as GENV
+G_ENV = GENV.GENVS()
+
+import pandas as pd
+from pandas import Series
+import report
+
+
+
+def show_data_head(des_dir, n=10):
+    df = get_features_data_all().head(n)
+    report.savedataframe(des_dir, "特征数据预览", df)
+
+
+def nan_count(data):
+    column_null = pd.isnull(data)
+    column_null_true = column_null[column_null == True]
+    null_count = len(column_null_true)
+    return null_count
+
+
+def qualityCheck(col):
+	##########################################################################
+    df_dir = G_ENV.baseDir+"/"+G_ENV.projectId+"/work_file/features.csv"    
+    df = pd.read_csv(df_dir, sep=',')
+    col_list = col.split('|')
+    df = df[col_list]
+    ##########################################################################
+    # Todo 检查df中是否有不符合质量检查的列，如字符串
+
+    # 数据质量检查
+    result_str = "编号|指标|所有数量|空值数量|空值比率|唯一值|平均值|最小值|25%分位数|50%分位数|75%分位数|99%分位数|最大值|异常值|标准差\n"
+    num = 0
+    line_size = df.iloc[:, 0].size
+    for i in df.columns:
+        num += 1
+        # 空值
+        NaN_num = nan_count(df[i])
+        # 空值比例
+        NaN_rate = NaN_num / line_size
+        # 唯一值
+        uniques = len(Series(df[i]).unique())
+        # 均值
+        avg = df[i].mean()
+        # 最小值
+        min_ = df[i].min()
+        # 分位数
+        df.sort_values(by=[i])
+        per_num_25 = df[i].quantile(0.25)
+        per_num_50 = df[i].quantile(0.5)
+        per_num_75 = df[i].quantile(0.75)
+        per_num_99 = df[i].quantile(0.99)
+        # 最大值
+        max_ = df[i].max()
+        # 标准差
+        std = df[i].std()
+        # 异常值
+        abnormal = avg + 3 * std
+        result_str += "{}|{}|{}|{}|{:.2f}|".format(num, i, line_size, NaN_num, NaN_rate)
+        result_str += "{}|{:.2f}|{}|{:.2f}|".format(uniques, avg, min_, per_num_25)
+        result_str += "{:.2f}|{:.2f}|{:.2f}|".format(per_num_50, per_num_75, per_num_99)
+        result_str += "{}|{:.2f}|{:.2f}\n".format(max_, std, abnormal)
+
+    # 保存结果
+    des_dir= G_ENV.get_result_dir("运行结果")
+    report.savestrtb(des_dir, "数据质量检查", result_str)
+
+    report.createhtml("运行结果", des_dir)
+
+
+if (__name__ == '__main__') & ('XXJOB' not in globals()):
+    G_ENV.baseDir="C:/Users/user/Desktop/automodel/script/V2/data"
+    G_ENV.projectId = "projectId"
+    G_ENV.jobId="jobId"
+    G_ENV.instanceId="instanceId"
+
+
+    qualityCheck("b_age|b_arpu")
