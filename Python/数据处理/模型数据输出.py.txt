@@ -22,8 +22,9 @@ def out_result_data(phone,x_col,projectid,rate):
     dir_file = G_ENV.baseDir+"/"+projectid+"/"
     model_path = dir_file
     for filename in os.listdir(dir_file):
-        if "模型实例" in filename:
-            model_path+=filename
+        # if "模型实例" in filename:
+        #     model_path+=filename
+        pass
     print(model_path)
     #path = G_ENV.baseDir+"/"+projectId+"/运行结果/resource/"+jobId+".模型实例.pkl"
     path=model_path
