@@ -1,0 +1,36 @@
+# -*- coding: utf-8 -*-
+import pandas as pd
+import report
+from sklearn import preprocessing
+import genvs as GENV
+import seaborn as sns
+import matplotlib.pyplot as plt
+sns.set(style="ticks", color_codes=True)
+
+G_ENV = GENV.GENVS()
+
+
+
+def distplot_main(x,flag):
+    col = x +"|" + flag
+    data = G_ENV.get_features_data(col)
+    for i in data[flag].unique():
+        labels = flag +"="+str(i)
+        sns.distplot(data[data[flag]==i][x], label = labels)
+    plt.legend()
+    #plt.show()
+
+    report.saveimg(G_ENV.get_result_dir("运行结果"), "直方图结果", plt)
+    # 生成报告
+    report.createhtml("直方图结果", G_ENV.get_result_dir())
+
+
+if __name__ == '__main__':
+    G_ENV.baseDir = "C:/Users/Tim/Desktop/automodel/V2/data"
+    G_ENV.projectId = "projectId"
+    G_ENV.jobId = "jobId"
+    G_ENV.instanceId = "instanceId"
+    x_col = "2g_liuliang|total_liuliang|3g_liuliang|country_liuliang|mangshi_liuliang|arpu|xianshi_liuliang|province_liuliang|flag"
+    x = "arpu"
+    flag = "flag"
+    distplot_main(x,flag)
