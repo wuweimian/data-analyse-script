@@ -1,0 +1,34 @@
+# -*- coding: utf-8 -*-
+import pandas as pd
+import report
+from sklearn import preprocessing
+import genvs as GENV
+import seaborn as sns
+import matplotlib.pyplot as plt
+sns.set(style="ticks", color_codes=True)
+
+G_ENV = GENV.GENVS()
+
+
+
+def swarmplot_main(x,y,flag):
+    x_col = x+"|"+y + "|" + flag
+    data = G_ENV.get_features_data(x_col)
+    sns.swarmplot(x=x, y=y, data=data, hue=flag)
+    #plt.show()
+
+    report.saveimg(G_ENV.get_result_dir("运行结果"), "类别散点图结果", plt)
+    # 生成报告
+    report.createhtml("类别散点图结果", G_ENV.get_result_dir())
+
+
+if __name__ == '__main__':
+    G_ENV.baseDir = "C:/Users/Tim/Desktop/automodel/V2/data"
+    G_ENV.projectId = "projectId"
+    G_ENV.jobId = "jobId"
+    G_ENV.instanceId = "instanceId"
+    x_col = "2g_liuliang|total_liuliang|3g_liuliang|country_liuliang|mangshi_liuliang|arpu|xianshi_liuliang|province_liuliang|flag"
+    x = "arpu"
+    y = "2g_liuliang"
+    flag = "flag"
+    swarmplot_main(x,y,flag)
