@@ -19,7 +19,7 @@ def out_result_data(phone,x_col,projectid,rate):
     x = (df[col_list]).values
     #加载模型，预测结果
     #jobId = projectId.split("/")[1]
-    dir_file = G_ENV.baseDir+"/"+projectid+"/"
+    dir_file = G_ENV.baseDir+"/"+projectid+"/result/resource/"
     model_path = dir_file
     for filename in os.listdir(dir_file):
         # if "模型实例" in filename:
