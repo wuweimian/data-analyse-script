@@ -82,7 +82,7 @@ def gbdts(x_col,y_col, train_size,criterion,init,learning_rate,loss,max_depth,
 
     model_evaluate(model_GBDT, x_train, x_test, y_train, y_test)
     #生成报告
-    report.createhtml("运行结果", G_ENV.get_result_dir())
+    report.createhtml("result", G_ENV.get_result_dir())
 
 ########################################################################################
 # 以下是模板
