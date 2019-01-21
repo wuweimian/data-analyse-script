@@ -1,64 +1,9 @@
 import genvs as GENV
-
 G_ENV = GENV.GENVS()
 
 import pandas as pd
 import report
 import file_operate
-import threading
-import os, time
-import errno
-
-class FileLockException(Exception):
-    pass
-
-
-class FileLock(object):
-    def __init__(self, file_name, timeout=10, delay=.5):
-        self.is_locked = False
-        self.lockfile = os.path.join(os.getcwd(), "%s.lock" % file_name)
-        self.file_name = file_name
-        self.timeout = timeout
-        self.delay = delay
-
-    def acquire(self):
-        # 获取文件锁，如果当前不可用，等待，直到可用或超时
-
-        start_time = time.time()
-        while True:
-            try:
-                # 独占式打开文件
-                self.fd = os.open(self.lockfile, os.O_CREAT | os.O_EXCL | os.O_RDWR)
-                break;
-            except OSError as e:
-                if e.errno != errno.EEXIST:
-                    raise
-                if (time.time() - start_time) >= self.timeout:
-                    raise FileLockException("Timeout occured.")
-                time.sleep(self.delay)
-        self.is_locked = True
-
-    def release(self):
-        # 释放锁--通过删除lockfile实现
-        # 关闭文件，删除文件
-        if self.is_locked:
-            os.close(self.fd)
-            os.unlink(self.lockfile)
-            self.is_locked = False
-
-    def __enter__(self):
-        # with 模块入口
-        if not self.is_locked:
-            self.acquire()
-        return self
-
-    def __exit__(self, type, value, traceback):
-        # with 模块出口
-        if self.is_locked:
-            self.release()
-
-    def __del__(self):
-        self.release()
 
 
 def show_data_head(des_dir, n=10):
@@ -66,59 +11,48 @@ def show_data_head(des_dir, n=10):
     report.savedataframe(des_dir, "特征数据预览", df)
 
 
-def copydf(feature_df, source_df, feature_key, source_key, source_col, new_col):
+def copydf(feature_df,source_df,feature_key,source_key,source_col,new_col):
     col = source_col.split('|')
     col.append(source_key)
     coln = new_col.split('|')
     coln.append(source_key)
     source_df = source_df[col]
-    source_df.columns = coln
+    source_df.columns=coln
 
-    df = pd.merge(feature_df, source_df, left_on=feature_key, right_on=source_key, how='inner')
+    df = pd.merge(feature_df,source_df,left_on=feature_key, right_on=source_key,how='inner')
     return df
 
-
-def copy(feature_key, source_key, source_col, new_col, sep='|'):
-
-    feature_dir = G_ENV.baseDir + "/" + G_ENV.projectId + "/work_file/"
+def copy(feature_key,source_key,source_col,new_col,sep='|'):
+    feature_dir = G_ENV.baseDir+"/"+G_ENV.projectId+"/work_file/"
     feature_filename = "features.csv"
-    source_dir = G_ENV.baseDir + "/" + G_ENV.projectId + "/source_file/"
+    source_dir = G_ENV.baseDir+"/"+G_ENV.projectId+"/source_file/"
     source_filename = G_ENV.tmpdir
-    # 锁
-    file_lock = FileLock("lock_file.txt")
-    try:
 
-        file_lock.__enter__()
-        source_df = file_operate.read(source_dir, source_filename, sep)
-        if file_operate.exists(feature_dir + feature_filename):
-            feature_df = file_operate.read(feature_dir, feature_filename, ',')
-            res = copydf(feature_df, source_df, feature_key, source_key, source_col, new_col)
-        else:
-            feature_df = file_operate.read(source_dir, source_filename, sep)
-            cols = source_col.split('|')
-            cols.append(source_key)
-            res = feature_df[cols]
-            coln = new_col.split('|')
-            coln.append(source_key)
-            res.columns = coln
+    source_df = file_operate.read(source_dir, source_filename,sep)
+    if file_operate.exists(feature_dir+feature_filename):
+        feature_df = file_operate.read(feature_dir, feature_filename,',')
+        res = copydf(feature_df,source_df,feature_key,source_key,source_col,new_col)
+    else:
+        feature_df = file_operate.read(source_dir, source_filename,sep)
+        cols = source_col.split('|')
+        cols.append(source_key)
+        res = feature_df[cols]
+        coln = new_col.split('|')
+        coln.append(source_key)
+        res.columns=coln
+    
+    file_operate.write(res,feature_dir,feature_filename,',')
 
-        file_operate.write(res, feature_dir, feature_filename, ',')
-
-        show_data_head(G_ENV.get_result_dir("运行结果"), n=10)
-        # 生成报告
-        report.createhtml("运行结果", G_ENV.get_result_dir("运行结果"))
-    finally:
-        file_lock.__del__()
-
-
-
+    show_data_head(G_ENV.get_result_dir("运行结果"),n=10)
+    #生成报告
+    report.createhtml("运行结果", G_ENV.get_result_dir("运行结果"))
 
 if (__name__ == '__main__') & ('XXJOB' not in globals()):
-    G_ENV.baseDir = "C:/Users/Tim/Desktop/automodel/V2/data"
+    G_ENV.baseDir="C:/Users/user/Desktop/automodel/script/V2/data"
     G_ENV.projectId = "projectId"
-    G_ENV.jobId = "jobId"
-    G_ENV.instanceId = "instanceId"
+    G_ENV.jobId="jobId"
+    G_ENV.instanceId="instanceId"
 
-    # source_filename
-    G_ENV.tmpdir = "a.txt"
-    copy("num", "num", "age|arpu", "a_age|a_arpu", sep='|')
+    #source_filename
+    G_ENV.tmpdir = "a.txt" 
+    copy("num", "num", "age|arpu","a_age|a_arpu",sep='|')
