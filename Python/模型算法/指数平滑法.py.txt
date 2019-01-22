@@ -1,0 +1,97 @@
+# -*- coding: utf-8 -*-
+
+
+import genvs as GENV
+G_ENV = GENV.GENVS()
+
+import pandas as pd
+import numpy as np
+import sklearn.metrics
+from sklearn.model_selection import train_test_split
+from statsmodels.tsa.arima_model import ARMA, ARIMA
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import classification_report
+import report
+import matplotlib.pylab as plt
+import seaborn as sns
+
+import matplotlib.pyplot as plt
+plt.rcParams['font.sans-serif'] = ['SimHei']
+
+
+def rmse(predictions, targets):
+    return np.sqrt(((predictions - targets) ** 2).mean())
+
+# 一次指数平滑预测
+def es1(list3, t, a):
+    if t == 0:
+        return list3[0]  # 初始的平滑值取实际值
+
+    return a * list3[t - 1] + (1 - a) * es1(list3, t - 1, a)  # 递归调用 t-1 → 12
+
+
+# 二次指数平滑预测
+def es2(list3, t, a):
+    if t == 0:
+        return list3[0]
+
+    return (a * es2(list3, t - 1, a) + (1 - a) * list3[t - 1])
+
+
+def answer(col,a):
+    #data = G_ENV.get_features_data(col)
+    data = pd.read_csv("AirPassengers.csv")
+    data = data[col]
+    # 指数平滑法
+    listES = []  # 指数平滑值的列表
+    for i in range(len(data)):
+        if i == 0:
+            listES.append(data[i])
+            continue
+        s = a * data[i] + (1 - a) * listES[-1]
+        listES.append(s)
+    #print("指数平滑值的列表：{}".format(listES))
+
+
+    # 画图
+    plt.scatter(list(range(len(listES))), listES)
+    plt.legend("原始数据列表")
+    plt.scatter(list(range(len(data))), data.tolist())
+    plt.legend("指数平滑值列表")
+    #plt.show()
+
+    # 均方根误差
+    rmse_arr = []
+    for i in range(len(listES)):
+        rmse_arr.append(rmse(listES[i], data[i]))
+    avg_rmse = np.mean(np.array(rmse_arr))
+
+    # 次指数平滑预测
+    t = len(data)  # 预测的时期 13
+    x = es2(data, t, a)
+    #print("下一个数的一次指数平滑预测：{}".format(x))
+    result_str = "指数平滑均方根误差|指数平滑预测的下一个值\n"
+    result_str +="{:.4f}|{:.4f}\n".format(avg_rmse,x)
+
+    #report.saveimg(G_ENV.get_result_dir(), "指数平滑法结果", plt)
+    report.savestrtb(G_ENV.get_result_dir("运行结果"), "指数平滑法预测", result_str)
+    report.createhtml("指数平滑法结果", G_ENV.get_result_dir())
+    # # 二次指数平滑预测
+    # m = 3  # 预测的值为之后的第m个
+    # yt = es2(data, t - 1, 2)
+    # ytm = listES[t - 2]
+    # esm = ((2 * ytm - yt) + m * (ytm - yt) * a / (1 - a))
+    # print("之后的第{}个数的二次指数平滑预测：{}".format(m, esm))
+
+
+########################################################################################
+# 以下是模板
+if (__name__ == '__main__') & ('XXJOB' not in globals()):
+    G_ENV.baseDir="C:/Users/Tim/Desktop/automodel/V2/data"
+    G_ENV.projectId = "projectId"
+    G_ENV.jobId="jobId"
+    G_ENV.instanceId="instanceId"
+    x_col = "#Passengers"
+    # 平滑常数
+    a = 0.8
+    answer(x_col,a)
