@@ -1,0 +1,17 @@
+# -*- coding: utf-8 -*-
+import pandas as pd
+import report
+from scipy import stats
+import genvs as GENV
+import matplotlib.pyplot as plt
+G_ENV = GENV.GENVS()
+
+
+def corr_main(x_col):
+    data = G_ENV.get_features_data(x_col)
+    corr = data.corr()
+    print(corr)
+    # 保存数据预览
+    report.savedataframe(G_ENV.get_result_dir(), "偏相关分析结果", corr)
+    # 生成报告
+    report.createhtml("偏相关分析结果", G_ENV.get_result_dir())
