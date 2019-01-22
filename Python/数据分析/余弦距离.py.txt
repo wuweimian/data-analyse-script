@@ -1,0 +1,29 @@
+# -*- coding: utf-8 -*-
+import pandas as pd
+import report
+import numpy as np
+import genvs as GENV
+
+G_ENV = GENV.GENVS()
+
+def CosDistance(x,y):
+    return np.inner(x,y)/np.sqrt(np.inner(x,x)*np.inner(y,y))
+
+# 余弦距离调用
+def CosDistance_main(x_col):
+    data = G_ENV.get_features_data(x_col)
+    data = data.dropna()
+    result_str="特征列|"
+    result_str += x_col + "\n"
+    for i in data.columns:
+        result_str += i + "|"
+        for j in data.columns:
+            distince = CosDistance(data[i],data[j])
+            result_str += str(distince)+"|"
+        result_str = result_str[:-1]
+        result_str +=  "\n"
+
+    # 保存结果
+    report.savestrtb(G_ENV.get_result_dir(), "余弦距离分析", result_str)
+    # 生成报告
+    report.createhtml("余弦距离分析", G_ENV.get_result_dir())
