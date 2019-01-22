@@ -1,0 +1,29 @@
+# -*- coding: utf-8 -*-
+import pandas as pd
+import report
+import numpy as np
+import genvs as GENV
+
+G_ENV = GENV.GENVS()
+
+def ChebyDistance(x,y):
+    return np.max(np.abs(x-y))
+
+# 切比雪夫距离调用
+def ChebyDistance_main(x_col):
+    data = G_ENV.get_features_data(x_col)
+    data = data.dropna()
+    result_str="特征列|"
+    result_str += x_col + "\n"
+    for i in data.columns:
+        result_str += i + "|"
+        for j in data.columns:
+            distince = ChebyDistance(data[i],data[j])
+            result_str += str(distince)+"|"
+        result_str = result_str[:-1]
+        result_str +=  "\n"
+
+    # 保存结果
+    report.savestrtb(G_ENV.get_result_dir(), "切比雪夫距离分析", result_str)
+    # 生成报告
+    report.createhtml("切比雪夫距离分析", G_ENV.get_result_dir())
