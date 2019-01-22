@@ -1,0 +1,61 @@
+# -*- coding: utf-8 -*-
+import pandas as pd
+import numpy as np
+import report
+from sklearn import linear_model
+from scipy.optimize import leastsq
+import genvs as GENV
+G_ENV = GENV.GENVS()
+
+
+# 拟合函数
+def func(a, x):
+    k, b = a
+    return k * x + b
+
+ # 残差
+def dist(a, x, y):
+     return func(a, x) - y
+
+def min_alc_main(x_col,flag):
+    data = G_ENV.get_features_data(x_col)
+    pd_empty = pd.DataFrame(columns=data.columns)
+    # 是否覆盖原值
+    if flag == "是":
+        for i in data.columns:
+            nans = pd.isnull(data[i]).tolist()
+            index = [i for i, x in enumerate(nans) if x == True]
+            x = np.arange(0,len(data[i])-len(index))
+            y = data[i].dropna()
+            param = [0, 0]
+            var = leastsq(dist, param, args=(x, y))
+
+            for j in range(len(data)):
+                if (data[i].isnull())[j]:
+                    data[i][j] = func(var[0], (j+j+1)/2)
+            pd_empty = pd_empty.append(data.loc[index])
+    else:
+        for i in data.columns:
+            nans = pd.isnull(data[i]).tolist()
+            index = [i for i, x in enumerate(nans) if x == True]
+            x = np.arange(0, len(data[i]) - len(index))
+            y = data[i].dropna()
+            param = [0, 0]
+            var = leastsq(dist, param, args=(x, y))
+            for j in range(len(data)):
+                if (data[i].isnull())[j]:
+                    new_col = i + "_最小二乘法拟合值"
+                    data[new_col] = data[i]
+                    data[new_col][j] = func(var[0], (j + j + 1) / 2)
+            pd_empty = pd_empty.append(data.loc[index])
+
+    pd_empty = pd_empty.reset_index()
+    pd_empty = pd_empty.drop_duplicates(subset="index", keep='last', inplace=False)
+    # pd_empty = pd_empty.drop(['index'],axis=1)
+    pd_empty = pd_empty.set_index("index")
+    # 保存前五行数据预览
+    report.savedataframe(G_ENV.get_result_dir(), "最小二乘法拟合结果", pd_empty.sort_index().head())
+    # 保存数据
+    G_ENV.update_features(data)
+    # 生成报告
+    report.createhtml("最小二乘法拟合结果", G_ENV.get_result_dir())
