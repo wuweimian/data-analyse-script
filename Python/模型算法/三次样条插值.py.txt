@@ -1,0 +1,41 @@
+# -*- coding: utf-8 -*-
+import pandas as pd
+import numpy as np
+from scipy import interpolate
+import report
+import genvs as GENV
+G_ENV = GENV.GENVS()
+
+
+"""
+三次样条插值调用函数
+"""
+def three_inserp_main(col,flag):
+    # 获取数据
+    data = G_ENV.get_features_data(col)
+    pd_empty = pd.DataFrame(columns=data.columns)
+    if flag == "是":
+        for i in data.columns:
+            nans = pd.isnull(data[i]).tolist()
+            index = [i for i, x in enumerate(nans) if x == True]
+            if True in nans:
+                pd_empty = pd_empty.append(data.interpolate(method='cubic').loc[index])
+    else:
+        for i in data.columns:
+            nans = pd.isnull(data[i]).tolist()
+            index = [i for i, x in enumerate(nans) if x == True]
+            new_col = i + "_三次样条插值"
+            if True in nans:
+                data[new_col] = data.interpolate(method='cubic')[i]
+                pd_empty = pd_empty.append(data.loc[index])
+
+    pd_empty = pd_empty.reset_index()
+    pd_empty = pd_empty.drop_duplicates(subset="index", keep='last', inplace=False)
+    # pd_empty = pd_empty.drop(['index'],axis=1)
+    pd_empty = pd_empty.set_index("index")
+    # 保存前五行数据预览
+    report.savedataframe(G_ENV.get_result_dir(), "三次样条插值结果", pd_empty.sort_index().head())
+    # 保存数据
+    G_ENV.update_features(data)
+    # 生成报告
+    report.createhtml("三次样条插值结果", G_ENV.get_result_dir())
