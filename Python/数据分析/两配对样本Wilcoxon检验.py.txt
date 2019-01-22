@@ -1,0 +1,24 @@
+# -*- coding: utf-8 -*-
+import pandas as pd
+import report
+from scipy.stats import wilcoxon
+import numpy as np
+import genvs as GENV
+G_ENV = GENV.GENVS()
+
+"""
+两配对样本Wilcoxon检验调用函数
+x_col:多个特征，以|分隔
+"""
+def Wilcoxon_ind_main(x_col):
+    col = x_col
+    data = G_ENV.get_features_data(col)
+    data = data.dropna()
+    data_np = np.array(data).reshape(-1)
+    t, p = wilcoxon(data_np)
+    result_str = "t统计值|p统计值\n"
+    result_str += "{}|{}\n".format(t, p)
+    # 保存前五行数据预览
+    report.savestrtb(G_ENV.get_result_dir(), "两配对样本Wilcoxon检验结果", result_str)
+    # 生成报告
+    report.createhtml("两配对样本Wilcoxon检验结果", G_ENV.get_result_dir())
