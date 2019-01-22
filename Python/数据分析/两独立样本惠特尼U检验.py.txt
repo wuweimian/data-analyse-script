@@ -1,0 +1,22 @@
+# -*- coding: utf-8 -*-
+import pandas as pd
+import report
+from scipy.stats import mannwhitneyu
+import numpy as np
+import genvs as GENV
+G_ENV = GENV.GENVS()
+
+"""
+惠特尼U检验调用函数
+"""
+def mannwhitneyu_main(x_col,y_col):
+    col = x_col + "|" + y_col
+    data = G_ENV.get_features_data(col)
+    data = data.dropna()
+    t, p = mannwhitneyu(data[x_col],data[y_col])
+    result_str = "t统计值|p统计值\n"
+    result_str += "{}|{}\n".format(t, p)
+    # 保存前五行数据预览
+    report.savestrtb(G_ENV.get_result_dir(), "两独立样本惠特尼U检验结果", result_str)
+    # 生成报告
+    report.createhtml("两独立样本惠特尼U检验结果", G_ENV.get_result_dir())
