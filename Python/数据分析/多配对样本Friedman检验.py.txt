@@ -1,0 +1,26 @@
+# -*- coding: utf-8 -*-
+import pandas as pd
+import report
+from scipy.stats import friedmanchisquare
+import numpy as np
+import genvs as GENV
+G_ENV = GENV.GENVS()
+
+"""
+多配对样本Friedman检验调用函数
+col:至少三个特征
+"""
+def Friedman_ind_main(x_col):
+
+    data = G_ENV.get_features_data(x_col)
+    data = data.dropna()
+    args = []
+    for i in data.columns:
+        args.append(data[i])
+    t, p = friedmanchisquare(*args)
+    result_str = "t统计值|p统计值\n"
+    result_str += "{}|{}\n".format(t, p)
+    # 保存前五行数据预览
+    report.savestrtb(G_ENV.get_result_dir(), "多配对样本Friedman检验结果", result_str)
+    # 生成报告
+    report.createhtml("多配对样本Friedman检验结果", G_ENV.get_result_dir())
