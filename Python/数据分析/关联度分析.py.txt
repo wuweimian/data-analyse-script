@@ -1,0 +1,58 @@
+# -*- coding: utf-8 -*-
+import pandas as pd
+import report
+from scipy import stats
+import genvs as GENV
+from numpy import *
+import matplotlib.pyplot as plt
+G_ENV = GENV.GENVS()
+
+def GRA_ONE(DataFrame,m=0):
+    gray= DataFrame
+    #读取为df格式
+    gray=(gray - gray.min()) / (gray.max() - gray.min())
+    #标准化
+    std=gray.iloc[:,m]#为标准要素
+    ce=gray.iloc[:,0:]#为比较要素
+    n=ce.shape[0]
+    m=ce.shape[1]#计算行列
+
+    #与标准要素比较，相减
+    a=zeros([m,n])
+    for i in range(m):
+        for j in range(n):
+            a[i,j]=abs(ce.iloc[j,i]-std[j])
+
+    #取出矩阵中最大值与最小值
+    c=amax(a)
+    d=amin(a)
+
+    #计算值
+    result=zeros([m,n])
+    for i in range(m):
+        for j in range(n):
+            result[i,j]=(d+0.5*c)/(a[i,j]+0.5*c)
+
+    #求均值，得到关联值
+    result2=zeros(m)
+    for i in range(m):
+            result2[i]=mean(result[i,:])
+    RT=pd.DataFrame(result2)
+    return RT
+
+def GRA(DataFrame,list_columns):
+    #list_columns = [str(s) for s in range(len(DataFrame.columns)) if s not in [None]]
+    df_local = pd.DataFrame(columns=list_columns)
+    for i in range(len(DataFrame.columns)):
+        df_local.iloc[:,i] = GRA_ONE(DataFrame,m=i)[0]
+    return df_local
+
+
+def guanlian_main(x_col):
+    data = G_ENV.get_features_data(x_col)
+    corr = GRA(data,data.columns)
+    corr.index = data.columns
+    # 保存数据预览
+    report.savedataframe(G_ENV.get_result_dir(), "关联度分析结果", corr)
+    # 生成报告
+    report.createhtml("关联度分析结果", G_ENV.get_result_dir())
