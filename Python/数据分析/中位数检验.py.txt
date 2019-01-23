@@ -1,0 +1,26 @@
+# -*- coding: utf-8 -*-
+import pandas as pd
+import report
+from scipy.stats import median_test
+import numpy as np
+import genvs as GENV
+G_ENV = GENV.GENVS()
+
+"""
+中位数检验调用函数
+x_col：至少两个特征
+"""
+def median_ind_main(x_col):
+    data = G_ENV.get_features_data(x_col)
+    data = data.dropna()
+    args = []
+    for i in data.columns:
+        args.append(data[i])
+    stat, p, med, tbl = median_test(*args)
+    result_str = "统计值|p值|中位数\n"
+    result_str += "{}|{}|{}\n".format(stat, p, med)
+
+    # 保存前五行数据预览
+    report.savestrtb(G_ENV.get_result_dir(), "中位数检验结果", result_str)
+    # 生成报告
+    report.createhtml("中位数检验结果", G_ENV.get_result_dir())
