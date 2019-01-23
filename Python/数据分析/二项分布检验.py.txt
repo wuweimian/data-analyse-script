@@ -1,0 +1,30 @@
+# -*- coding: utf-8 -*-
+import pandas as pd
+import report
+from scipy.stats import kstest
+import matplotlib.pyplot as plt
+from scipy.stats import ks_2samp
+import numpy as np
+import genvs as GENV
+from scipy import stats
+G_ENV = GENV.GENVS()
+
+"""
+二项分布检验调用函数
+"""
+def binomial_main(n, p):
+    k = np.arange(0, n)
+
+    binomial = stats.binom.pmf(k, n, p)
+
+    plt.plot(k, binomial, 'o-')
+    plt.title('二项分布检验:n=%i,p=%.2f' % (n, p), fontsize=15)
+    plt.xlabel('number of success')
+    plt.ylabel('probalility of success', fontsize=15)
+    plt.grid(True)
+    #plt.show()
+
+    # 保存预览
+    report.saveimg(G_ENV.get_result_dir(), "二项分布检验结果", plt)
+    # 生成报告
+    report.createhtml("二项分布检验结果", G_ENV.get_result_dir())
