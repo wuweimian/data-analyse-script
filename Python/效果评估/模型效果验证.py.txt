@@ -6,6 +6,7 @@ G_ENV = GENV.GENVS()
 import pandas as pd
 from sklearn.externals import joblib
 import report
+import os
 
 def model_result_fenix(phone,x_col,y_col,taskid):
     # 读取文件信息
@@ -18,8 +19,13 @@ def model_result_fenix(phone,x_col,y_col,taskid):
     x = (df[col_list]).values
     #加载模型，预测结果
     jobId = taskid.split("/")[1]
-    path = G_ENV.baseDir+"/"+G_ENV.projectId+"/"+taskid+"/运行结果/resource/"+jobId+".模型实例.pkl"
-    model = joblib.load(path)
+    #path = G_ENV.baseDir+"/"+G_ENV.projectId+"/"+taskid+"/运行结果/resource/"+jobId+".模型实例.pkl"
+    dir_file = G_ENV.baseDir + "/" + G_ENV.projectId + "/" + taskid + "/运行结果/resource/"
+    model_path = dir_file
+    for filename in os.listdir(dir_file):
+        if "模型实例" in filename:
+            model_path += filename
+    model = joblib.load(model_path)
     probability = model.predict_proba(x)
     probability_frame = pd.DataFrame(probability, columns=['not_lost_rate', 'lost_rate'])
 
