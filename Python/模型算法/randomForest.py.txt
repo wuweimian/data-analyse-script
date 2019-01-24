@@ -96,7 +96,8 @@ def plot_confusion_matrix(cm, classes,
 
     report.saveimg(G_ENV.get_result_dir(), "随机森林混淆矩阵", plt)
     #report.createhtml("GBDT模型混淆矩阵", G_ENV.get_result_dir())
-    plt.show()
+    #plt.show()
+    plt.close()
 
 def roc_auc(fpr, tpr,auc):
     plt.rcParams['font.sans-serif'] = ['SimHei']
@@ -114,7 +115,8 @@ def roc_auc(fpr, tpr,auc):
     plt.title('ROC和AUC')
     report.saveimg(G_ENV.get_result_dir(), "随机森林ROC曲线", plt)
     #report.createhtml("ROC和AUC", G_ENV.get_result_dir())
-    plt.show()
+    #plt.show()
+    plt.close()
 
 # ks曲线
 def ks(tpr,fpr):
@@ -127,7 +129,8 @@ def ks(tpr,fpr):
     plt.title('K-S曲线')
     report.saveimg(G_ENV.get_result_dir(), "随机森林K-S曲线", plt)
     #report.createhtml("GBDT模型K-S曲线", G_ENV.get_result_dir())
-    plt.show()
+    #plt.show()
+    plt.close()
 
 def randomforest(x_col,y_col, train_size,bootstrap,class_weight,criterion,max_depth,
                  max_features,max_leaf_nodes,min_impurity_split,min_samples_leaf,
