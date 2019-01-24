@@ -92,7 +92,8 @@ def plot_confusion_matrix(cm, classes,
 
     report.saveimg(G_ENV.get_result_dir(), "KNN模型混淆矩阵", plt)
     #report.createhtml("KNN模型混淆矩阵", G_ENV.get_result_dir())
-    plt.show()
+    #plt.show()
+    plt.close()
 
 def roc_auc(fpr, tpr,auc):
     plt.rcParams['font.sans-serif'] = ['SimHei']
@@ -110,7 +111,8 @@ def roc_auc(fpr, tpr,auc):
     plt.title('ROC和AUC')
     report.saveimg(G_ENV.get_result_dir(), "KNN模型ROC曲线", plt)
     #report.createhtml("KNN模型ROC曲线", G_ENV.get_result_dir())
-    plt.show()
+    #plt.show()
+    plt.close()
 
 # ks曲线
 def ks(tpr,fpr):
@@ -123,7 +125,8 @@ def ks(tpr,fpr):
     plt.title('K-S曲线')
     report.saveimg(G_ENV.get_result_dir(), "KNN模型K-S曲线", plt)
     #report.createhtml("KNN模型K-S曲线", G_ENV.get_result_dir())
-    plt.show()
+    #plt.show()
+    plt.close()
 
 def knneighbors(x_col,y_col, train_size, algorithm, leaf_size,metric,metric_params,
                 n_jobs,n_neighbors,p,weights):
