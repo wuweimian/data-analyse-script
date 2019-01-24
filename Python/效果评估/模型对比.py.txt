@@ -1,0 +1,26 @@
+import genvs as GENV
+G_ENV = GENV.GENVS()
+import report
+import os
+
+def iter_files(rootDir):
+    #遍历根目录
+    for root,dirs,files in os.walk(rootDir):
+        for file in files:
+            file_name = os.path.join(root,file)
+            if "测试集结果" in file_name:
+                pass
+                #print(file_name)
+        for dirname in dirs:
+            #递归调用自身,只改变目录名称
+            iter_files(dirname)
+
+
+    # 生成报告
+    report.createhtml("运行结果", G_ENV.get_result_dir())
+
+def model_compare():
+    dir_file = G_ENV.baseDir + "/" + G_ENV.projectId + "/"
+    print(G_ENV.instanceId)
+    print(G_ENV.jobId)
+    iter_files(dir_file)
