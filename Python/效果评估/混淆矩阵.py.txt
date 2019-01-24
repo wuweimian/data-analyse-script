@@ -85,15 +85,7 @@ def plot_confusion_matrix(cm, classes,
     plt.show()
 
 
-def gbdts_juzheng(x_col,y_col, train_size=0.7,
-         criterion='friedman_mse', init=None,
-         learning_rate=0.1, loss='deviance', max_depth=8,
-         max_features=None, max_leaf_nodes=None,
-         min_impurity_decrease=0.0, min_impurity_split=None,
-         min_samples_leaf=1, min_samples_split=2,
-         min_weight_fraction_leaf=0.0, n_estimators=10,
-         presort='auto', random_state=None, subsample=1.0, verbose=0,
-         warm_start=False
+def gbdts_juzheng(x_col,y_col, train_size=0.7
          ):
     col = x_col+"|"+y_col
     df = G_ENV.get_features_data(col)
@@ -101,14 +93,7 @@ def gbdts_juzheng(x_col,y_col, train_size=0.7,
     x = (df.iloc[:, 0:len(df.columns) - 1]).values
     y = df[y_col].values
     x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=train_size, random_state=0)
-    GBDT = GradientBoostingClassifier(criterion=criterion, init=init,
-         learning_rate=learning_rate, loss=loss, max_depth=max_depth,
-         max_features=max_features, max_leaf_nodes=max_leaf_nodes,
-         min_impurity_decrease=min_impurity_decrease, min_impurity_split=min_impurity_split,
-         min_samples_leaf=min_samples_leaf, min_samples_split=min_samples_split,
-         min_weight_fraction_leaf=min_weight_fraction_leaf, n_estimators=n_estimators,
-         presort=presort, random_state=random_state, subsample=subsample, verbose=verbose,
-         warm_start=warm_start)
+    GBDT = GradientBoostingClassifier()
     model_GBDT = GBDT.fit(x_train, y_train)
     #持久化
     #report.saveskmd(G_ENV.get_result_dir(), "模型实例", model_GBDT)
