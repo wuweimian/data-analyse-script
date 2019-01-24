@@ -93,7 +93,8 @@ def plot_confusion_matrix(cm, classes,
 
     report.saveimg(G_ENV.get_result_dir(), "Âß¼­»Ø¹é»ìÏı¾ØÕó", plt)
     #report.createhtml("Âß¼­»Ø¹é»ìÏı¾ØÕó", G_ENV.get_result_dir())
-    plt.show()
+    #plt.show()
+    plt.close()
 
 def roc_auc(fpr, tpr,auc):
     plt.rcParams['font.sans-serif'] = ['SimHei']
@@ -111,7 +112,8 @@ def roc_auc(fpr, tpr,auc):
     plt.title('ROCºÍAUC')
     report.saveimg(G_ENV.get_result_dir(), "Âß¼­»Ø¹éROCÇúÏß", plt)
     #report.createhtml("Âß¼­»Ø¹éROCÇúÏß", G_ENV.get_result_dir())
-    plt.show()
+    #plt.show()
+    plt.close()
 
 # ksÇúÏß
 def ks(tpr,fpr):
@@ -124,7 +126,8 @@ def ks(tpr,fpr):
     plt.title('K-SÇúÏß')
     report.saveimg(G_ENV.get_result_dir(), "Âß¼­»Ø¹éK-SÇúÏß", plt)
     #report.createhtml("Âß¼­»Ø¹éK-SÇúÏß", G_ENV.get_result_dir())
-    plt.show()
+    #plt.show()
+    plt.close()
 
 def logis(x_col,y_col, train_size,C,class_weight,dual,fit_intercept,intercept_scaling,
           max_iter,multi_class,n_jobs,penalty,random_state,solver,tol,verbose,warm_start
