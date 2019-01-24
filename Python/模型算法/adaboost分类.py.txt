@@ -2,8 +2,7 @@
 
 import genvs as GENV
 G_ENV = GENV.GENVS()
-import xgboost as xgb
-from xgboost import XGBClassifier
+from sklearn.ensemble import AdaBoostClassifier
 import pandas as pd
 import sklearn.metrics
 import numpy as np
@@ -42,8 +41,8 @@ def model_evaluate(model, x_train, x_test, y_train, y_test):
     auc = sklearn.metrics.auc(fpr, tpr)
     result_str += "{}|{}\n".format("auc值", auc)
     # 保存结果
-    report.savestrtb(G_ENV.get_result_dir(), "xgboost模型评估结果", result_str)
-    report.savestrtb(G_ENV.get_result_dir(), "xgboost测试集结果", result_str2)
+    report.savestrtb(G_ENV.get_result_dir(), "adaboost模型评估结果", result_str)
+    report.savestrtb(G_ENV.get_result_dir(), "adaboost测试集结果", result_str2)
 
     # 混淆矩阵
     labels = [0, 1]
@@ -89,8 +88,8 @@ def plot_confusion_matrix(cm, classes,
     plt.ylabel('实际值')
     plt.xlabel('预测值')
 
-    report.saveimg(G_ENV.get_result_dir(), "xgboost模型混淆矩阵", plt)
-    #report.createhtml("xgboost模型混淆矩阵", G_ENV.get_result_dir())
+    report.saveimg(G_ENV.get_result_dir(), "adaboost模型混淆矩阵", plt)
+    #report.createhtml("adaboost模型混淆矩阵", G_ENV.get_result_dir())
     plt.show()
 
 def roc_auc(fpr, tpr,auc):
@@ -107,8 +106,8 @@ def roc_auc(fpr, tpr,auc):
     plt.grid(b=True, ls=':')
     plt.legend(loc='lower right', fancybox=True, framealpha=0.8)
     plt.title('ROC和AUC')
-    report.saveimg(G_ENV.get_result_dir(), "xgboost模型ROC曲线", plt)
-    #report.createhtml("xgboost模型ROC曲线", G_ENV.get_result_dir())
+    report.saveimg(G_ENV.get_result_dir(), "adaboost模型ROC曲线", plt)
+    #report.createhtml("adaboost模型ROC曲线", G_ENV.get_result_dir())
     plt.show()
 
 # ks曲线
@@ -120,14 +119,12 @@ def ks(tpr,fpr):
     plt.plot(tpr - fpr, label="tpr - fpr")
     plt.legend(loc=0, ncol=1)
     plt.title('K-S曲线')
-    report.saveimg(G_ENV.get_result_dir(), "xgboost模型K-S曲线", plt)
-    #report.createhtml("xgboost模型K-S曲线", G_ENV.get_result_dir())
+    report.saveimg(G_ENV.get_result_dir(), "adaboost模型K-S曲线", plt)
+    #report.createhtml("adaboost模型K-S曲线", G_ENV.get_result_dir())
     plt.show()
 
-def xgboosts_classfier(x_col,y_col,train_size,base_score,booster,colsample_bylevel,colsample_bytree,
-             gamma,learning_rate,max_delta_step,max_depth,min_child_weight,missing,n_estimators,
-             n_jobs,nthread,objective,random_state,reg_alpha,reg_lambda,scale_pos_weight,
-             seed,silent,subsample
+def adaboost_classfier(x_col,y_col,train_size,algorithm,base_estimator,learning_rate,
+                       n_estimators,random_state
           ):
     col = x_col+"|"+y_col
     df = G_ENV.get_features_data(col)
@@ -137,29 +134,19 @@ def xgboosts_classfier(x_col,y_col,train_size,base_score,booster,colsample_bylev
     y = df[y_col].values
     x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=train_size, random_state=0)
 
-    if missing == 'None':
-        missing = None
-    if nthread == 'None':
-        nthread = None
-    if seed == 'None':
-        seed = None
-    if silent == 'True':
-        silent = True
-    if silent == 'False':
-        silent = False
+    if base_estimator == 'None':
+        base_estimator = None
+    if random_state == 'None':
+        random_state = None
 
-    xgboost = XGBClassifier(base_score=base_score, booster=booster, colsample_bylevel=colsample_bylevel,
-       colsample_bytree=colsample_bytree, gamma=gamma, learning_rate=learning_rate, max_delta_step=max_delta_step,
-       max_depth=max_depth, min_child_weight=min_child_weight, missing=missing, n_estimators=n_estimators,
-       n_jobs=n_jobs, nthread=nthread, objective=objective, random_state=random_state,
-       reg_alpha=reg_alpha, reg_lambda=reg_lambda, scale_pos_weight=scale_pos_weight, seed=seed,
-       silent=silent, subsample=subsample)
-    model_xgboost = xgboost.fit(x_train, y_train)
+    adaboost = AdaBoostClassifier(algorithm=algorithm, base_estimator=base_estimator,
+                                  learning_rate=learning_rate, n_estimators=n_estimators, random_state=random_state)
+    model_adaboost = adaboost.fit(x_train, y_train)
 
     #持久化
-    report.saveskmd(G_ENV.get_result_dir(), "模型实例", model_xgboost)
+    report.saveskmd(G_ENV.get_result_dir(), "模型实例", model_adaboost)
 
-    model_evaluate(model_xgboost, x_train, x_test, y_train, y_test)
+    model_evaluate(model_adaboost, x_train, x_test, y_train, y_test)
     #生成报告
     report.createhtml("运行结果", G_ENV.get_result_dir())
 
@@ -172,28 +159,10 @@ if (__name__ == '__main__') & ('XXJOB' not in globals()):
     G_ENV.instanceId="instanceId"
     x_col = "2g_liuliang|total_liuliang|3g_liuliang|country_liuliang|mangshi_liuliang|arpu|xianshi_liuliang|province_liuliang"
     train_size = 0.7
-    base_score = 0.5
-    booster = 'gbtree'
-    colsample_bylevel = 1
-    colsample_bytree = 1
-    gamma = 0
-    learning_rate = 0.1
-    max_delta_step = 0
-    max_depth = 3
-    min_child_weight = 1
-    missing = None
-    n_estimators = 100
-    n_jobs = 1
-    nthread = None
-    objective = 'binary:logistic'
-    random_state = 0
-    reg_alpha = 0
-    reg_lambda = 1
-    scale_pos_weight = 1
-    seed = None
-    silent = True
-    subsample = 1
-    xgboosts_classfier(x_col,"flag",train_size,base_score,booster,colsample_bylevel,colsample_bytree,
-             gamma,learning_rate,max_delta_step,max_depth,min_child_weight,missing,n_estimators,
-             n_jobs,nthread,objective,random_state,reg_alpha,reg_lambda,scale_pos_weight,
-             seed,silent,subsample)
+    algorithm = 'SAMME.R'
+    base_estimator = None
+    learning_rate = 1.0
+    n_estimators = 50
+    random_state = None
+    adaboost_classfier(x_col,"flag",train_size,algorithm,base_estimator,learning_rate,
+                       n_estimators,random_state)
