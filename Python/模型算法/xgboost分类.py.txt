@@ -9,8 +9,10 @@ import sklearn.metrics
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
-from sklearn.metrics import classification_report
+from sklearn.metrics import confusion_matrix,recall_score,classification_report
 import report
+import matplotlib.pyplot as plt
+import itertools
 
 def show_data_head(des_dir, n=10):
     df = G_ENV.get_features_data_all().head(n)
@@ -42,6 +44,88 @@ def model_evaluate(model, x_train, x_test, y_train, y_test):
     # 保存结果
     report.savestrtb(G_ENV.get_result_dir(), "xgboost模型评估结果", result_str)
     report.savestrtb(G_ENV.get_result_dir(), "xgboost测试集结果", result_str2)
+
+    # 混淆矩阵
+    labels = [0, 1]
+    confusion_matrix_main(y_test, y_hat, labels)
+    # ROC和AUC
+    roc_auc(fpr, tpr, auc)
+    # K-S曲线
+    ks(tpr, fpr)
+
+# 混淆矩阵调用函数
+def confusion_matrix_main(y_true,y_predict,labels):
+    cnf_matrix = confusion_matrix(y_true, y_predict)
+    np.set_printoptions(precision=2)
+
+    # Plot non-normalized confusion matrix
+    class_names = labels
+    #plt.figure(figsize=(3, 3))
+    plot_confusion_matrix(cnf_matrix
+                          , classes=class_names
+                          , title='混淆矩阵')
+
+# 绘制混淆矩阵的图形
+def plot_confusion_matrix(cm, classes,
+                          title='混淆矩阵',
+                          cmap=plt.cm.Blues):
+
+    plt.rcParams['font.sans-serif'] = ['SimHei']
+    plt.imshow(cm, interpolation='nearest', cmap=cmap)
+    plt.tick_params(labelsize=13)
+    plt.title(title)
+    plt.colorbar()
+    tick_marks = np.arange(len(classes))
+    plt.xticks(tick_marks, classes, rotation=0)
+    plt.yticks(tick_marks, classes)
+
+    thresh = cm.max() / 2.
+    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+        plt.text(j, i, cm[i, j],
+                 horizontalalignment="center",
+                 color="white" if cm[i, j] > thresh else "black")
+
+    plt.tight_layout()
+    plt.ylabel('实际值')
+    plt.xlabel('预测值')
+
+    report.saveimg(G_ENV.get_result_dir(), "xgboost模型混淆矩阵", plt)
+    #report.createhtml("xgboost模型混淆矩阵", G_ENV.get_result_dir())
+    #plt.show()
+    plt.close()
+
+def roc_auc(fpr, tpr,auc):
+    plt.rcParams['font.sans-serif'] = ['SimHei']
+    #plt.figure(figsize=(3, 3))
+    plt.plot(fpr, tpr, c='g', lw=2, alpha=0.7, label='auc = %.3f' % auc)
+    plt.plot((0, 1), (0, 1), c='#808080', lw=2, alpha=0.7)
+    plt.xlim((-0.01, 1.02))
+    plt.ylim((-0.01, 1.02))
+    plt.xticks(np.arange(0, 1.1, 0.1))
+    plt.yticks(np.arange(0, 1.1, 0.1))
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.grid(b=True, ls=':')
+    plt.legend(loc='lower right', fancybox=True, framealpha=0.8)
+    plt.title('ROC和AUC')
+    report.saveimg(G_ENV.get_result_dir(), "xgboost模型ROC曲线", plt)
+    #report.createhtml("xgboost模型ROC曲线", G_ENV.get_result_dir())
+    #plt.show()
+    plt.close()
+
+# ks曲线
+def ks(tpr,fpr):
+    # 画ks曲线
+    #plt.figure(figsize=(3, 3))
+    plt.plot(tpr, label='tbr')
+    plt.plot(fpr, label='fbr')
+    plt.plot(tpr - fpr, label="tpr - fpr")
+    plt.legend(loc=0, ncol=1)
+    plt.title('K-S曲线')
+    report.saveimg(G_ENV.get_result_dir(), "xgboost模型K-S曲线", plt)
+    #report.createhtml("xgboost模型K-S曲线", G_ENV.get_result_dir())
+    #plt.show()
+    plt.close()
 
 def xgboosts_classfier(x_col,y_col,train_size,base_score,booster,colsample_bylevel,colsample_bytree,
              gamma,learning_rate,max_delta_step,max_depth,min_child_weight,missing,n_estimators,
@@ -97,7 +181,7 @@ if (__name__ == '__main__') & ('XXJOB' not in globals()):
     colsample_bytree = 1
     gamma = 0
     learning_rate = 0.1
-    max_delta_step = 0,
+    max_delta_step = 0
     max_depth = 3
     min_child_weight = 1
     missing = None
