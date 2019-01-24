@@ -85,7 +85,7 @@ def plot_confusion_matrix(cm, classes,
     plt.show()
 
 
-def gbdts(x_col,y_col, train_size=0.7,
+def gbdts_juzheng(x_col,y_col, train_size=0.7,
          criterion='friedman_mse', init=None,
          learning_rate=0.1, loss='deviance', max_depth=8,
          max_features=None, max_leaf_nodes=None,
@@ -126,4 +126,4 @@ if (__name__ == '__main__') & ('XXJOB' not in globals()):
     G_ENV.instanceId="instanceId"
     x_col = "2g_liuliang|total_liuliang|3g_liuliang|country_liuliang|mangshi_liuliang|arpu|xianshi_liuliang|province_liuliang"
     train_size = 0.7
-    gbdts(x_col,"flag", train_size)
+    gbdts_juzheng(x_col,"flag", train_size)
