@@ -90,7 +90,8 @@ def plot_confusion_matrix(cm, classes,
 
     report.saveimg(G_ENV.get_result_dir(), "adaboost模型混淆矩阵", plt)
     #report.createhtml("adaboost模型混淆矩阵", G_ENV.get_result_dir())
-    plt.show()
+    #plt.show()
+    plt.close()
 
 def roc_auc(fpr, tpr,auc):
     plt.rcParams['font.sans-serif'] = ['SimHei']
@@ -108,7 +109,8 @@ def roc_auc(fpr, tpr,auc):
     plt.title('ROC和AUC')
     report.saveimg(G_ENV.get_result_dir(), "adaboost模型ROC曲线", plt)
     #report.createhtml("adaboost模型ROC曲线", G_ENV.get_result_dir())
-    plt.show()
+    #plt.show()
+    plt.close()
 
 # ks曲线
 def ks(tpr,fpr):
@@ -121,7 +123,8 @@ def ks(tpr,fpr):
     plt.title('K-S曲线')
     report.saveimg(G_ENV.get_result_dir(), "adaboost模型K-S曲线", plt)
     #report.createhtml("adaboost模型K-S曲线", G_ENV.get_result_dir())
-    plt.show()
+    #plt.show()
+    plt.close()
 
 def adaboost_classfier(x_col,y_col,train_size,algorithm,base_estimator,learning_rate,
                        n_estimators,random_state
