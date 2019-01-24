@@ -17,10 +17,14 @@ def iter_files(rootDir):
 
 
     # 生成报告
-    report.createhtml("运行结果", G_ENV.get_result_dir())
+    #report.createhtml("运行结果", G_ENV.get_result_dir())
 
 def model_compare():
     dir_file = G_ENV.baseDir + "/" + G_ENV.projectId + "/"
     print(G_ENV.instanceId)
     print(G_ENV.jobId)
-    iter_files(dir_file)
+    #iter_files(dir_file)
+
+
+if __name__ == '__main__':
+    model_compare()
