@@ -21,6 +21,8 @@ def iter_files(rootDir):
 
 def model_compare(flag):
     dir_file = G_ENV.baseDir + "/" + G_ENV.projectId + "/"
+    print("***********************************")
+    print(dir_file)
     print(G_ENV.instanceId)
     print(G_ENV.jobId)
     #iter_files(dir_file)
