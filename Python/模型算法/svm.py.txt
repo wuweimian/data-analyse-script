@@ -95,7 +95,8 @@ def plot_confusion_matrix(cm, classes,
 
     report.saveimg(G_ENV.get_result_dir(), "支持向量机模型混淆矩阵", plt)
     #report.createhtml("支持向量机模型混淆矩阵", G_ENV.get_result_dir())
-    plt.show()
+    #plt.show()
+    plt.close()
 
 def roc_auc(fpr, tpr,auc):
     plt.rcParams['font.sans-serif'] = ['SimHei']
@@ -113,7 +114,8 @@ def roc_auc(fpr, tpr,auc):
     plt.title('ROC和AUC')
     report.saveimg(G_ENV.get_result_dir(), "支持向量机模型ROC曲线", plt)
     #report.createhtml("支持向量机模型ROC曲线", G_ENV.get_result_dir())
-    plt.show()
+    #plt.show()
+    plt.close()
 
 # ks曲线
 def ks(tpr,fpr):
@@ -126,7 +128,8 @@ def ks(tpr,fpr):
     plt.title('K-S曲线')
     report.saveimg(G_ENV.get_result_dir(), "支持向量机模型K-S曲线", plt)
     #report.createhtml("支持向量机模型K-S曲线", G_ENV.get_result_dir())
-    plt.show()
+    #plt.show()
+    plt.close()
 
 def svc(x_col,y_col, train_size,C,cache_size,class_weight,coef0,degree,gamma,
         kernel,max_iter,probability,random_state,shrinking,tol,verbose):
