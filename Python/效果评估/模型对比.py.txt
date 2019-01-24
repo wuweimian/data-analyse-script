@@ -34,7 +34,7 @@ def iter_files(rootDir,des_dir):
 
 
 def model_compare(flag):
-    des_dir = G_ENV.baseDir + "/" + G_ENV.projectId + "/" + G_ENV.jobId + "/" + G_ENV.instanceId + "/运行结果2/"
+    des_dir = G_ENV.baseDir + "/" + G_ENV.projectId + "/" + G_ENV.jobId + "/" + G_ENV.instanceId + "/运行结果/"
     root_dir = G_ENV.baseDir + "/" + G_ENV.projectId + "/"
 
     # 遍历项目目录及复制效果文件
@@ -42,7 +42,7 @@ def model_compare(flag):
     iter_files(root_dir,target_dir)
 
     # 生成报告
-    report.createhtml_model_compare("运行结果2",des_dir)
+    report.createhtml_model_compare("运行结果",des_dir)
 
 if __name__ == '__main__':
     # flag=1是分类，flag=2是回归
