@@ -31,7 +31,7 @@ def model_evaluate(model, x_train, x_test, y_train, y_test):
     result_str +="{:.2f}|{:.2f}|{:.2f}\n".format(mse,rmse,scores)
 
     # 保存结果
-    report.savestrtb(G_ENV.get_result_dir(), "xgboost回归评估结果", result_str)
+    report.savestrtb(G_ENV.get_result_dir(), "adaboost回归评估结果", result_str)
 
 def adaboosts_regisson(x_col,y_col,train_size,base_estimator,learning_rate,
                        loss,n_estimators,random_state
