@@ -22,13 +22,3 @@ def regplot_main(x,y):
     report.createhtml("É¢µãÍ¼½á¹û", G_ENV.get_result_dir())
 
 
-if __name__ == '__main__':
-    G_ENV.baseDir = "C:/Users/Tim/Desktop/automodel/V2/data"
-    G_ENV.projectId = "projectId"
-    G_ENV.jobId = "jobId"
-    G_ENV.instanceId = "instanceId"
-    x_col = "2g_liuliang|total_liuliang|3g_liuliang|country_liuliang|mangshi_liuliang|arpu|xianshi_liuliang|province_liuliang|flag"
-    x = "arpu"
-    y = "2g_liuliang"
-    flag = "flag"
-    regplot_main(x,y)
